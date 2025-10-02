@@ -1,7 +1,20 @@
 // features/auth/domain/i_auth_repository.dart
-import 'auth_response.dart';
+import 'package:cole20/features/auth/domain/email_verification_response.dart';
+import 'package:cole20/features/auth/domain/forget_password_response.dart';
+import 'package:cole20/features/auth/domain/signup_response.dart';
+
+import 'sign_in_response.dart';
 
 abstract class IAuthRepository {
-  Future<AuthResponse> login(String email, String password);
-  Future<void> logout();
+  Future<SignInResponse> signin(String email, String password);
+
+  Future<void> signout();
+
+  Future<SignupResponse> signup(String email, String password, String fullName);
+
+  Future<EmailVerificationResponse> verifyEmail(String otp);
+
+  Future<ForgetPasswordResponse> forgetPassword(String email);
+
+  Future<void> resendOtp();
 }

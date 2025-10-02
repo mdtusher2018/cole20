@@ -1,26 +1,50 @@
+import 'package:cole20/features/auth/application/auth_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cole20/core/assets.dart';
 import 'package:cole20/core/colors.dart';
 import 'package:cole20/features/auth/presentation/forget_pass.dart';
 import 'package:cole20/features/home/presentation/root_page.dart';
 import 'package:cole20/features/auth/presentation/signup.dart';
-import '../../../core/commonWidgets.dart';
+import 'package:cole20/core/commonWidgets.dart';
+import 'package:cole20/core/providers.dart';
 
-class SignInScreen extends StatefulWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class _SignInScreenState extends ConsumerState<SignInScreen> {
+  final TextEditingController emailController = TextEditingController(text: "devrakibmia@gmail.com");
+  final TextEditingController passwordController = TextEditingController(text: "123456");
   bool rememberMe = false;
   bool isPasswordVisible = false;
 
+  void _login() async {
+    final authNotifier = ref.read(authNotifierProvider.notifier);
+
+    await authNotifier.signin(
+      emailController.text.trim(),
+      passwordController.text.trim(),
+    );
+
+    final authState = ref.read(authNotifierProvider);
+
+    if (authState.isAuthenticated) {
+      slideNavigationPushAndRemoveUntil(RootPage(), context);
+    } else if (authState.hasError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authState.errorMessage.toString())),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final AuthState  authState = ref.watch(authNotifierProvider);
+
     return Scaffold(
       backgroundColor: AppColors.green,
       bottomSheet: SizedBox(
@@ -32,10 +56,7 @@ class _SignInScreenState extends State<SignInScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 20),
-                Image.asset(
-                  ImagePaths.logo,
-                  height: 80,
-                ),
+                Image.asset(ImagePaths.logo, height: 80),
                 const SizedBox(height: 10),
                 commonText("45 cole20", size: 24.0, isBold: true),
                 const SizedBox(height: 10),
@@ -57,7 +78,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                // Password TextField with Visibility Toggle
+                // Password TextField
                 commonTextfield(
                   passwordController,
                   hintText: "Password",
@@ -73,7 +94,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                // Remember Me and Forgot Password Row
+                // Remember Me & Forgot Password
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -111,25 +132,20 @@ class _SignInScreenState extends State<SignInScreen> {
                 // Sign In Button
                 commonButton(
                   "Sign In",
-                  onTap: () {
-                    slideNavigationPushAndRemoveUntil(RootPage(), context);
-                  },
+                  isLoading: authState.isLoading,
+                  onTap: _login,
                 ),
                 const SizedBox(height: 20),
 
                 // Or Divider
                 Row(
                   children: [
-                    Expanded(
-                      child: Divider(color: AppColors.black),
-                    ),
+                    Expanded(child: Divider(color: AppColors.black)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: commonText("Or", size: 16.0),
                     ),
-                    Expanded(
-                      child: Divider(color: AppColors.black),
-                    ),
+                    Expanded(child: Divider(color: AppColors.black)),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -139,9 +155,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   "Sign In With Google",
                   imagePath: ImagePaths.googleIcon,
                   borderColor: AppColors.gold,
-                  onTap: () {
-                    // Handle Google Sign In
-                  },
+                  onTap: () {},
                 ),
                 const SizedBox(height: 15),
 
@@ -150,13 +164,11 @@ class _SignInScreenState extends State<SignInScreen> {
                   "Sign In With Facebook",
                   imagePath: ImagePaths.facebookIcon,
                   borderColor: AppColors.gold,
-                  onTap: () {
-                    // Handle Facebook Sign In
-                  },
+                  onTap: () {},
                 ),
                 const SizedBox(height: 30),
 
-                // Already have an account? Sign In
+                // Sign Up Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -166,8 +178,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         slideNavigationPushAndRemoveUntil(
                             SignUpScreen(), context);
                       },
-                      child: commonText("Sign Up",
-                          size: 12.0, color: AppColors.berry, isBold: true),
+                      child: commonText(
+                        "Sign Up",
+                        size: 12.0,
+                        color: AppColors.berry,
+                        isBold: true,
+                      ),
                     ),
                   ],
                 ),

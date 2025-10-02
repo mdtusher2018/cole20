@@ -16,7 +16,15 @@ class ApiEndpoints {
 
 
 
-  static String login="auth/login"; // Replace with actual base image URL
+  static String signin="auth/login";
+
+  static String signup="users/signup";
+
+  static String verifyEmail="users/create-user-verify-otp";
+
+  static String forgetPassword="auth/forgot-password-otpByEmail";
+
+  static String resendOTP="otp/resend-otp";
 
 
 

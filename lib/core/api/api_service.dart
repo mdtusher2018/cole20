@@ -19,8 +19,7 @@ class ApiService implements IApiService {
     final headers = {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
-      if (token != null) 'SignUpToken': 'signUpToken $token',
-      if (token != null) 'Forget-password': 'Forget-password $token',
+      if (token != null) 'token': token,
       if (extra != null) ...extra,
     };
     return headers;

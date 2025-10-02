@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cole20/core/colors.dart';
 import 'dart:math' as math;
+import 'package:another_flushbar/flushbar.dart';
 
 Widget commonText(String text,
     {double size = 12.0,
@@ -84,6 +85,34 @@ Widget commonTextfield(TextEditingController controller,
   );
 }
 
+void showSnackBar({
+  required BuildContext context,
+  required String title,
+  required String message,
+  bool isTop = false,
+  Color backgroundColor = Colors.black,
+  Color textColor = Colors.white,
+  Duration duration = const Duration(seconds: 3),
+}) {
+  Flushbar(
+    title: title,
+    message: message,
+    duration: duration,
+    backgroundColor: backgroundColor,
+    flushbarPosition: FlushbarPosition.TOP, // This shows it at top
+    margin: EdgeInsets.all(8),
+    borderRadius: BorderRadius.circular(8),
+    titleColor: textColor,
+    messageColor: textColor,
+  ).show(context);
+
+  // ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
+
+
+
+
+
 Widget commonTextfieldWithTitle(String title, TextEditingController controller,
     {FocusNode? focusNode,
     String hintText = "",
@@ -160,30 +189,6 @@ Widget commonTextfieldWithTitle(String title, TextEditingController controller,
         ),
       ),
     ],
-  );
-}
-
-Future<dynamic> animetedNavigationPush(Widget page, BuildContext context) {
-  return Navigator.push(
-    context,
-    PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionDuration: const Duration(milliseconds: 500),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.easeInOut;
-
-        var tween =
-            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-        var offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-    ),
   );
 }
 

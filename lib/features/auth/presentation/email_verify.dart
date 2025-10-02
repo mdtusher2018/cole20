@@ -1,17 +1,42 @@
+import 'package:cole20/core/providers.dart';
+import 'package:cole20/features/auth/application/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:cole20/core/assets.dart';
 import 'package:cole20/core/colors.dart';
-import 'package:cole20/features/auth/presentation/reset_pass.dart';
+import 'package:cole20/features/profile/presentation/compleate_profile.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/commonWidgets.dart';
 
-class VerificationScreen extends StatelessWidget {
-  final List<TextEditingController> otpControllers =
-      List.generate(4, (_) => TextEditingController());
+class EmailVerificationScreen extends ConsumerWidget {
+  final List<TextEditingController> otpControllers = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
 
-  VerificationScreen({super.key});
+  EmailVerificationScreen({super.key});
+
+  String getOTP() => otpControllers.map((e) => e.text.trim()).join();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authNotifierProvider);
+
+    ref.listen<AuthState>(authNotifierProvider, (previous, next) {
+      if (next.isAuthenticated) {
+        slideNavigationPushAndRemoveUntil(
+          CompleteProfileScreen(),
+          context,
+          onlypush: true,
+        );
+      } else if (next.hasError) {
+        showSnackBar(
+          context: context,
+          message: next.errorMessage ?? "Verification failed",
+          title: "Error",
+        );
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.green,
       appBar: AppBar(
@@ -31,13 +56,8 @@ class VerificationScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(
-                height: 16,
-              ),
-              Image.asset(
-                ImagePaths.logo,
-                height: 80,
-              ),
+              const SizedBox(height: 16),
+              Image.asset(ImagePaths.logo, height: 80),
               const SizedBox(height: 10),
               commonText("45 cole20", size: 24.0, isBold: true),
               const SizedBox(height: 10),
@@ -77,7 +97,9 @@ class VerificationScreen extends StatelessWidget {
                     color: Colors.grey,
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      ref.read(authNotifierProvider.notifier).resendOtp();
+                    },
                     child: commonText(
                       "Resend",
                       size: 12.0,
@@ -87,19 +109,25 @@ class VerificationScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              Spacer(),
+              const Spacer(),
 
               // Verify Button
               commonButton(
                 "Verify",
+                isLoading: authState.isLoading,
                 color: AppColors.green,
                 textColor: Colors.white,
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ResetPasswordScreen()),
-                  );
+                  final otp = getOTP();
+                  if (otp.length < 4) {
+                    showSnackBar(
+                      context: context,
+                      message: "Please enter complete OTP",
+                      title: "Empty",
+                    );
+                    return;
+                  }
+                  ref.read(authNotifierProvider.notifier).verifyEmail(otp);
                 },
               ),
               const SizedBox(height: 20),
