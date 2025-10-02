@@ -1,0 +1,430 @@
+import 'package:flutter/material.dart';
+import 'package:cole20/core/colors.dart';
+import 'dart:math' as math;
+
+Widget commonText(String text,
+    {double size = 12.0,
+    Color color = Colors.black,
+    bool isBold = false,
+    softwarp,
+    TextAlign textAlign = TextAlign.left}) {
+  return Text(
+    text,
+    overflow: TextOverflow.ellipsis,
+    maxLines: 1000,
+    softWrap: softwarp,
+    textAlign: textAlign,
+    style: TextStyle(
+      fontSize: size,
+      color: color,
+      fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
+      fontFamily: 'TenorSans',
+    ),
+  );
+}
+
+Widget commonTextfield(TextEditingController controller,
+    {String hintText = "",
+    TextInputType keyboardType = TextInputType.text,
+    String? assetIconPath,
+    prrfixIcon,
+    VoidCallback? onTap,
+    bool isEnable = true,
+    bool isPasswordVisible = false, // For password visibility toggle
+    bool issuffixIconVisible = false, // To show or hide the suffix icon
+    VoidCallback? changePasswordVisibility, // Callback to toggle visibility
+    Color borderColor = AppColors.green,
+    int maxLine = 1}) {
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(10.0),
+      border: Border.all(
+        color: borderColor,
+        width: 1.0,
+      ),
+    ),
+    child: TextField(
+      onTap: onTap,
+      enabled: isEnable,
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLine,
+      obscureText: isPasswordVisible, // Toggle password visibility
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.all(12.0),
+        hintText: hintText,
+        hintStyle: TextStyle(
+          fontSize: 12,
+          color: AppColors.black,
+          fontFamily: 'TenorSans',
+        ),
+        border: InputBorder.none,
+        prefixIcon: assetIconPath != null
+            ? Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ImageIcon(
+                  AssetImage(assetIconPath),
+                  size: 24.0,
+                ),
+              )
+            : (prrfixIcon != null)
+                ? prrfixIcon
+                : null,
+        suffixIcon: issuffixIconVisible
+            ? IconButton(
+                icon: Icon(
+                  isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: AppColors.black,
+                ),
+                onPressed: changePasswordVisibility,
+              )
+            : null,
+      ),
+    ),
+  );
+}
+
+Widget commonTextfieldWithTitle(String title, TextEditingController controller,
+    {FocusNode? focusNode,
+    String hintText = "",
+    bool isBold = true,
+    bool issuffixIconVisible = false,
+    bool isPasswordVisible = false,
+    enable,
+    textSize = 14.0,
+    borderWidth = 0.0,
+    changePasswordVisibility,
+    TextInputType keyboardType = TextInputType.text,
+    String? assetIconPath,
+    Color borderColor = Colors.grey,
+    int maxLine = 1,
+    String? Function(String?)? onValidate,
+    Function(String?)? onFieldSubmit}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      commonText(title, size: textSize, isBold: isBold),
+      const SizedBox(
+        height: 5,
+      ),
+      Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(
+            color: borderColor,
+            width: borderWidth,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10.0),
+          child: TextFormField(
+            controller: controller,
+            enabled: enable,
+            focusNode: focusNode,
+            validator: onValidate,
+            onFieldSubmitted: onFieldSubmit,
+            keyboardType: keyboardType,
+            maxLines: maxLine,
+            obscureText: isPasswordVisible,
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.all(12.0),
+              hintText: hintText,
+              fillColor: AppColors.white,
+              filled: true,
+              hintStyle: TextStyle(
+                fontSize: 12,
+                color: AppColors.white,
+                fontFamily: 'TenorSans',
+              ),
+              border: InputBorder.none,
+              suffixIcon: (issuffixIconVisible)
+                  ? (!isPasswordVisible)
+                      ? InkWell(
+                          onTap: changePasswordVisibility,
+                          child: Icon(Icons.visibility))
+                      : InkWell(
+                          onTap: changePasswordVisibility,
+                          child: Icon(Icons.visibility_off_outlined))
+                  : null,
+              prefixIcon: assetIconPath != null
+                  ? Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ImageIcon(
+                        AssetImage(assetIconPath),
+                        size: 24.0,
+                      ),
+                    )
+                  : null,
+            ),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+Future<dynamic> animetedNavigationPush(Widget page, BuildContext context) {
+  return Navigator.push(
+    context,
+    PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionDuration: const Duration(milliseconds: 500),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    ),
+  );
+}
+
+Future<dynamic> slideNavigationPushAndRemoveUntil(
+    Widget page, BuildContext context,
+    {bool onlypush = false}) {
+  if (onlypush) {
+    return Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => page,
+          transitionDuration: const Duration(milliseconds: 500),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+        ));
+  } else {
+    return Navigator.pushAndRemoveUntil(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => page,
+          transitionDuration: const Duration(milliseconds: 500),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+        ),
+        (Route<dynamic> route) => false);
+  }
+}
+
+Widget commonButton(String title,
+    {Color color = AppColors.green,
+    Color textColor = Colors.white,
+    double textSize = 18,
+    double width = double.infinity,
+    double height = 50,
+    VoidCallback? onTap,
+    bool isLoading = false}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        color: color,
+      ),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: isLoading
+              ? const CircularProgressIndicator()
+              : commonText(title,
+                  size: textSize, color: textColor, isBold: true),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget commonBorderButton(String title,
+    {double width = double.infinity,
+    VoidCallback? onTap,
+    Color borderColor = AppColors.gold,
+    double borderWidth = 1.0,
+    String? imagePath, // Optional image parameter
+    double imageSize = 24.0,
+    Color textColor = AppColors.black}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      height: 50,
+      width: width,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: borderColor,
+          width: borderWidth,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (imagePath != null) ...[
+              Image.asset(
+                imagePath,
+                height: imageSize,
+                width: imageSize,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(width: 8), // Space between image and text
+            ],
+            commonText(title, size: 18, color: textColor, isBold: true),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Widget buildOTPTextField(
+    TextEditingController controller, int index, BuildContext context) {
+  return SizedBox(
+    width: 55,
+    height: 55,
+    child: TextField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      textAlign: TextAlign.center,
+      cursorColor: Colors.black,
+      style: const TextStyle(
+        fontSize: 20,
+        fontFamily: 'TenorSans',
+      ),
+      maxLength: 1,
+      decoration: InputDecoration(
+        counterText: '',
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: AppColors.black),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: AppColors.black),
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      onChanged: (value) {
+        if (value.length == 1 && index < 5) {
+          FocusScope.of(context).nextFocus();
+        } else if (value.isEmpty && index > 0) {
+          FocusScope.of(context).previousFocus();
+        }
+      },
+    ),
+  );
+}
+
+class RoundedCapProgressIndicator extends StatelessWidget {
+  final double progress;
+  final Color backgroundColor;
+  final Color progressColor;
+  final double strokeWidth;
+
+  const RoundedCapProgressIndicator({
+    Key? key,
+    required this.progress, // Progress must be a value between 0.0 and 1.0
+    this.backgroundColor = Colors.grey,
+    this.progressColor = AppColors.green,
+    this.strokeWidth = 20.0,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: _RoundedCapPainter(
+        progress: progress,
+        backgroundColor: backgroundColor,
+        progressColor: progressColor,
+        strokeWidth: strokeWidth,
+      ),
+      child: SizedBox(
+        width: 120,
+        height: 120,
+      ),
+    );
+  }
+}
+
+class _RoundedCapPainter extends CustomPainter {
+  final double progress;
+  final Color backgroundColor;
+  final Color progressColor;
+  final double strokeWidth;
+
+  _RoundedCapPainter({
+    required this.progress,
+    required this.backgroundColor,
+    required this.progressColor,
+    required this.strokeWidth,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final backgroundPaint = Paint()
+      ..color = backgroundColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    // Draw the background circle
+    canvas.drawCircle(center, radius - strokeWidth / 2, backgroundPaint);
+
+    final progressPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [progressColor, progressColor], // Gradient color effect
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      ).createShader(Rect.fromCircle(center: center, radius: radius))
+      ..strokeCap =
+          StrokeCap.round // This is where the rounded caps are defined
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    // Draw the progress arc
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+      math.pi * 1.5,
+      math.pi * 2 * progress,
+      false,
+      progressPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
