@@ -2,6 +2,7 @@
 import 'package:cole20/features/auth/domain/email_verification_response.dart';
 import 'package:cole20/features/auth/domain/forget_password_response.dart';
 import 'package:cole20/features/auth/domain/signup_response.dart';
+import 'package:cole20/features/auth/domain/verify_otp_response.dart';
 
 import '../../../core/api/i_api_service.dart';
 import '../../../core/apiEndPoints.dart';
@@ -53,11 +54,23 @@ class AuthRepository implements IAuthRepository {
     return ForgetPasswordResponse.fromJson(res['data']);
   }
 
+
+  @override
+  Future<VerifyOTPResponse> verifyOTP(String otp) async {
+    final res = await _api.patch(ApiEndpoints.verifyOTP, {"otp": otp});
+    return VerifyOTPResponse.fromJson(res);
+  }
+
   @override
   Future<void> resendOtp() async {
-    await _api.patch(
-      ApiEndpoints.resendOTP,{}
-    );
-    // response only contains success + message, no data to return
+    await _api.patch(ApiEndpoints.resendOTP, {});
+  }
+
+  @override
+  Future<void> resetPassword(String password, String confirmPassword) async {
+    await _api.patch(ApiEndpoints.resetPassword, {
+      "newPassword": password,
+      "confirmPassword": confirmPassword,
+    });
   }
 }

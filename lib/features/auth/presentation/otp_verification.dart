@@ -26,11 +26,11 @@ class OtpVerificationScreen extends ConsumerWidget {
           context,
           onlypush: true,
         );
-      } else if (next.isOtpResent) {
+      } else if (next.isOtpResent && previous?.isOtpResent != true) {
         showSnackBar(
           context: context,
           message: "OTP resent successfully!",
-          title: "Sucessfull",
+          title: "Success",
         );
       } else if (next.hasError) {
         showSnackBar(
@@ -100,19 +100,36 @@ class OtpVerificationScreen extends ConsumerWidget {
                     size: 12.0,
                     color: Colors.grey,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      ref.read(authNotifierProvider.notifier).resendOtp();
+                  Builder(
+                    builder: (context) {
+                      final authState = ref.watch(authNotifierProvider);
+
+                      if (authState.resendCooldown > 0) {
+                        // ⏳ Show countdown instead of button
+                        return commonText(
+                          "Resend in ${authState.resendCooldown}s",
+                          size: 12.0,
+                          color: Colors.black,
+                        );
+                      }
+
+                      // 🔁 Show Resend button when cooldown is finished
+                      return GestureDetector(
+                        onTap: () {
+                          ref.read(authNotifierProvider.notifier).resendOtp();
+                        },
+                        child: commonText(
+                          "Resend",
+                          size: 12.0,
+                          color: Colors.red,
+                          isBold: true,
+                        ),
+                      );
                     },
-                    child: commonText(
-                      "Resend",
-                      size: 12.0,
-                      color: Colors.red,
-                      isBold: true,
-                    ),
                   ),
                 ],
               ),
+
               const Spacer(),
 
               // Verify Button
@@ -134,7 +151,7 @@ class OtpVerificationScreen extends ConsumerWidget {
                       }
 
                       // Call verifyEmail in AuthNotifier
-                      ref.read(authNotifierProvider.notifier).verifyEmail(otp);
+                      ref.read(authNotifierProvider.notifier).verifyOTP(otp);
                     },
                   ),
               const SizedBox(height: 20),

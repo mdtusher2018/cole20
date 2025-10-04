@@ -24,7 +24,11 @@ class ApiEndpoints {
 
   static String forgetPassword="auth/forgot-password-otpByEmail";
 
+  static String verifyOTP="auth/forgot-password-otp-match";
+
   static String resendOTP="otp/resend-otp";
+
+  static String resetPassword="auth/forgot-password-reset";
 
 
 
