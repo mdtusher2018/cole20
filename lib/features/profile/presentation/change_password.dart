@@ -1,15 +1,19 @@
+import 'package:cole20/core/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:cole20/core/colors.dart';
 import 'package:cole20/core/commonWidgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../application/profile_state.dart';
 
-class ChangePasswordScreen extends StatefulWidget {
+class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({Key? key}) : super(key: key);
 
   @override
-  _ChangePasswordScreenState createState() => _ChangePasswordScreenState();
+  ConsumerState<ChangePasswordScreen> createState() =>
+      _ChangePasswordScreenState();
 }
 
-class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   final TextEditingController currentPasswordController =
       TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
@@ -21,7 +25,65 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   bool isConfirmPasswordVisible = false;
 
   @override
+  void dispose() {
+    currentPasswordController.dispose();
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _changePassword() async {
+    final oldPass = currentPasswordController.text.trim();
+    final newPass = newPasswordController.text.trim();
+    final confirmPass = confirmPasswordController.text.trim();
+
+    if (oldPass.isEmpty || newPass.isEmpty || confirmPass.isEmpty) {
+      showSnackBar(
+        context: context,
+        message: "All fields are required",
+        title: "Error",
+      );
+      return;
+    }
+
+    if (newPass != confirmPass) {
+      showSnackBar(
+        context: context,
+        message: "New password and confirm password do not match",
+        title: "Error",
+      );
+      return;
+    }
+
+    await ref
+        .read(profileNotifierProvider.notifier)
+        .changePassword(oldPass, newPass);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final profileState = ref.watch(profileNotifierProvider);
+
+    ref.listen<ProfileState>(profileNotifierProvider, (prev, next) {
+      if (next.status == ProfileStatus.loaded) {
+        showSnackBar(
+          context: context,
+          message: "Password changed successfully",
+          title: "Success",
+          backgroundColor: Colors.green,
+        );
+        currentPasswordController.clear();
+        newPasswordController.clear();
+        confirmPasswordController.clear();
+      } else if (next.hasError) {
+        showSnackBar(
+          context: context,
+          message: next.errorMessage ?? "Failed to change password",
+          title: "Error",
+        );
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.green,
       appBar: AppBar(
@@ -41,15 +103,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ),
         centerTitle: true,
       ),
-      bottomSheet: Container(
-        height: double.infinity,
+      bottomSheet: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
         child: Column(
           children: [
-            const Spacer(
-              flex: 1,
-            ),
-
-            // Current Password Field
             _buildPasswordField(
               controller: currentPasswordController,
               label: "Current Password",
@@ -61,8 +118,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               },
             ),
             const SizedBox(height: 15),
-
-            // New Password Field
             _buildPasswordField(
               controller: newPasswordController,
               label: "New Password",
@@ -74,8 +129,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               },
             ),
             const SizedBox(height: 15),
-
-            // Confirm New Password Field
             _buildPasswordField(
               controller: confirmPasswordController,
               label: "Confirm New Password",
@@ -86,22 +139,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 });
               },
             ),
-
-            const Spacer(
-              flex: 6,
-            ),
-            // Change Password Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: commonButton(
-                "Change Password",
-                color: AppColors.green,
-                textColor: AppColors.white,
-                onTap: () {
-                  // Handle change password logic here
-                  print("Password changed!");
-                },
-              ),
+            Spacer(),
+            commonButton(
+              "Change Password",
+              color: AppColors.green,
+              textColor: AppColors.white,
+              isLoading: profileState.status == ProfileStatus.changingPassword,
+              onTap: _changePassword,
             ),
             const SizedBox(height: 40),
           ],
@@ -123,10 +167,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         obscureText: !isPasswordVisible,
         decoration: InputDecoration(
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                width: 1,
-              )),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(width: 1),
+          ),
           labelText: label,
           labelStyle: const TextStyle(
             fontFamily: 'TenorSans',

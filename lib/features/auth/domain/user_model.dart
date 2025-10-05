@@ -30,18 +30,18 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['_id'],
-      fullName: json['fullName'],
-      email: json['email'],
-      profileImage: json['profileImage'],
-      role: json['role'],
-      phone: json['phone'],
+      id: json['_id']??"",
+      fullName: json['fullName']??"",
+      email: json['email']??"",
+      profileImage: json['profileImage']??"",
+      role: json['role']??"",
+      phone: json['phone']??"",
       userVerification: json['userVerification'] ?? false,
       isProfileComplete: json['isProfileComplete'] ?? false,
       isBlocked: json['isBlocked'] ?? false,
       isDeleted: json['isDeleted'] ?? false,
-      loginWith: json['loginWth'],
-      gender: json['gender'],
+      loginWith: json['loginWth']??"",
+      gender: json['gender']??"",
     );
   }
 }

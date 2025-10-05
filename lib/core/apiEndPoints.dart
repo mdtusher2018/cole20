@@ -29,8 +29,17 @@ class ApiEndpoints {
   static String resendOTP="otp/resend-otp";
 
   static String resetPassword="auth/forgot-password-reset";
+  static String changePassword="auth/change-password";
 
   static String completeProfile="users/complete-profile";
+
+  static String getProfile="users/get-my-profile";
+
+  static String updateProfile="users/update-my-profile";
+
+  static String fetchCurrentDay="users/me/days-since";
+
+  static String rituals(int day)=>"ritual/user-get-rituals-grouped-by-category?startDay=$day";
 
 
 
