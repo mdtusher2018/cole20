@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cole20/core/localstorage/i_local_storage_service.dart';
 import 'package:cole20/core/localstorage/storage_key.dart';
-import 'package:cole20/features/auth/domain/i_auth_repository.dart';
+import 'package:cole20/features/auth/domain/repository/i_auth_repository.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'auth_state.dart';
 
@@ -114,6 +115,31 @@ class AuthNotifier extends StateNotifier<AuthState> {
       state = AuthState.error(e.toString());
     }
   }
+
+
+
+
+Future<void> completeProfile({
+  required String fullName,
+  required String phone,
+  required String gender,
+  File? image,
+}) async {
+  state = AuthState.loading();
+  try {
+    final response = await _repository.completeProfile(
+       fullName,
+       phone,
+       gender,
+       image
+    );
+    state = AuthState.profileCompleted(response);
+  } catch (e) {
+    state = AuthState.error(e.toString());
+  }
+}
+
+
 
 
 

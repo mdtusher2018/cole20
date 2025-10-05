@@ -30,6 +30,8 @@ class ApiEndpoints {
 
   static String resetPassword="auth/forgot-password-reset";
 
+  static String completeProfile="users/complete-profile";
+
 
 
 

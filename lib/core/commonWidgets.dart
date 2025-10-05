@@ -3,12 +3,14 @@ import 'package:cole20/core/colors.dart';
 import 'dart:math' as math;
 import 'package:another_flushbar/flushbar.dart';
 
-Widget commonText(String text,
-    {double size = 12.0,
-    Color color = Colors.black,
-    bool isBold = false,
-    softwarp,
-    TextAlign textAlign = TextAlign.left}) {
+Widget commonText(
+  String text, {
+  double size = 12.0,
+  Color color = Colors.black,
+  bool isBold = false,
+  softwarp,
+  TextAlign textAlign = TextAlign.left,
+}) {
   return Text(
     text,
     overflow: TextOverflow.ellipsis,
@@ -24,25 +26,24 @@ Widget commonText(String text,
   );
 }
 
-Widget commonTextfield(TextEditingController controller,
-    {String hintText = "",
-    TextInputType keyboardType = TextInputType.text,
-    String? assetIconPath,
-    prrfixIcon,
-    VoidCallback? onTap,
-    bool isEnable = true,
-    bool isPasswordVisible = false, // For password visibility toggle
-    bool issuffixIconVisible = false, // To show or hide the suffix icon
-    VoidCallback? changePasswordVisibility, // Callback to toggle visibility
-    Color borderColor = AppColors.green,
-    int maxLine = 1}) {
+Widget commonTextfield(
+  TextEditingController controller, {
+  String hintText = "",
+  TextInputType keyboardType = TextInputType.text,
+  String? assetIconPath,
+  prrfixIcon,
+  VoidCallback? onTap,
+  bool isEnable = true,
+  bool isPasswordVisible = false, // For password visibility toggle
+  bool issuffixIconVisible = false, // To show or hide the suffix icon
+  VoidCallback? changePasswordVisibility, // Callback to toggle visibility
+  Color borderColor = AppColors.green,
+  int maxLine = 1,
+}) {
   return Container(
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10.0),
-      border: Border.all(
-        color: borderColor,
-        width: 1.0,
-      ),
+      border: Border.all(color: borderColor, width: 1.0),
     ),
     child: TextField(
       onTap: onTap,
@@ -60,26 +61,25 @@ Widget commonTextfield(TextEditingController controller,
           fontFamily: 'TenorSans',
         ),
         border: InputBorder.none,
-        prefixIcon: assetIconPath != null
-            ? Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: ImageIcon(
-                  AssetImage(assetIconPath),
-                  size: 24.0,
-                ),
-              )
-            : (prrfixIcon != null)
+        prefixIcon:
+            assetIconPath != null
+                ? Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ImageIcon(AssetImage(assetIconPath), size: 24.0),
+                )
+                : (prrfixIcon != null)
                 ? prrfixIcon
                 : null,
-        suffixIcon: issuffixIconVisible
-            ? IconButton(
-                icon: Icon(
-                  isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                  color: AppColors.black,
-                ),
-                onPressed: changePasswordVisibility,
-              )
-            : null,
+        suffixIcon:
+            issuffixIconVisible
+                ? IconButton(
+                  icon: Icon(
+                    isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: AppColors.black,
+                  ),
+                  onPressed: changePasswordVisibility,
+                )
+                : null,
       ),
     ),
   );
@@ -90,7 +90,7 @@ void showSnackBar({
   required String title,
   required String message,
   bool isTop = false,
-  Color backgroundColor = Colors.black,
+  Color backgroundColor = Colors.red,
   Color textColor = Colors.white,
   Duration duration = const Duration(seconds: 3),
 }) {
@@ -109,40 +109,34 @@ void showSnackBar({
   // ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
-
-
-
-
-Widget commonTextfieldWithTitle(String title, TextEditingController controller,
-    {FocusNode? focusNode,
-    String hintText = "",
-    bool isBold = true,
-    bool issuffixIconVisible = false,
-    bool isPasswordVisible = false,
-    enable,
-    textSize = 14.0,
-    borderWidth = 0.0,
-    changePasswordVisibility,
-    TextInputType keyboardType = TextInputType.text,
-    String? assetIconPath,
-    Color borderColor = Colors.grey,
-    int maxLine = 1,
-    String? Function(String?)? onValidate,
-    Function(String?)? onFieldSubmit}) {
+Widget commonTextfieldWithTitle(
+  String title,
+  TextEditingController controller, {
+  FocusNode? focusNode,
+  String hintText = "",
+  bool isBold = true,
+  bool issuffixIconVisible = false,
+  bool isPasswordVisible = false,
+  enable,
+  textSize = 14.0,
+  borderWidth = 0.0,
+  changePasswordVisibility,
+  TextInputType keyboardType = TextInputType.text,
+  String? assetIconPath,
+  Color borderColor = Colors.grey,
+  int maxLine = 1,
+  String? Function(String?)? onValidate,
+  Function(String?)? onFieldSubmit,
+}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       commonText(title, size: textSize, isBold: isBold),
-      const SizedBox(
-        height: 5,
-      ),
+      const SizedBox(height: 5),
       Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(
-            color: borderColor,
-            width: borderWidth,
-          ),
+          border: Border.all(color: borderColor, width: borderWidth),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10.0),
@@ -166,24 +160,25 @@ Widget commonTextfieldWithTitle(String title, TextEditingController controller,
                 fontFamily: 'TenorSans',
               ),
               border: InputBorder.none,
-              suffixIcon: (issuffixIconVisible)
-                  ? (!isPasswordVisible)
-                      ? InkWell(
-                          onTap: changePasswordVisibility,
-                          child: Icon(Icons.visibility))
-                      : InkWell(
-                          onTap: changePasswordVisibility,
-                          child: Icon(Icons.visibility_off_outlined))
-                  : null,
-              prefixIcon: assetIconPath != null
-                  ? Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: ImageIcon(
-                        AssetImage(assetIconPath),
-                        size: 24.0,
-                      ),
-                    )
-                  : null,
+              suffixIcon:
+                  (issuffixIconVisible)
+                      ? (!isPasswordVisible)
+                          ? InkWell(
+                            onTap: changePasswordVisibility,
+                            child: Icon(Icons.visibility),
+                          )
+                          : InkWell(
+                            onTap: changePasswordVisibility,
+                            child: Icon(Icons.visibility_off_outlined),
+                          )
+                      : null,
+              prefixIcon:
+                  assetIconPath != null
+                      ? Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: ImageIcon(AssetImage(assetIconPath), size: 24.0),
+                      )
+                      : null,
             ),
           ),
         ),
@@ -193,64 +188,68 @@ Widget commonTextfieldWithTitle(String title, TextEditingController controller,
 }
 
 Future<dynamic> slideNavigationPushAndRemoveUntil(
-    Widget page, BuildContext context,
-    {bool onlypush = false}) {
+  Widget page,
+  BuildContext context, {
+  bool onlypush = false,
+}) {
   if (onlypush) {
     return Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => page,
-          transitionDuration: const Duration(milliseconds: 500),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset.zero;
-            const curve = Curves.easeInOut;
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionDuration: const Duration(milliseconds: 500),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
 
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            var offsetAnimation = animation.drive(tween);
+          var tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
 
-            return SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            );
-          },
-        ));
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
+    );
   } else {
     return Navigator.pushAndRemoveUntil(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => page,
-          transitionDuration: const Duration(milliseconds: 500),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const begin = Offset(1.0, 0.0);
-            const end = Offset.zero;
-            const curve = Curves.easeInOut;
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionDuration: const Duration(milliseconds: 500),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
 
-            var tween =
-                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-            var offsetAnimation = animation.drive(tween);
+          var tween = Tween(
+            begin: begin,
+            end: end,
+          ).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
 
-            return SlideTransition(
-              position: offsetAnimation,
-              child: child,
-            );
-          },
-        ),
-        (Route<dynamic> route) => false);
+          return SlideTransition(position: offsetAnimation, child: child);
+        },
+      ),
+      (Route<dynamic> route) => false,
+    );
   }
 }
 
-Widget commonButton(String title,
-    {Color color = AppColors.green,
-    Color textColor = Colors.white,
-    double textSize = 18,
-    double width = double.infinity,
-    double height = 50,
-    VoidCallback? onTap,
-    bool isLoading = false}) {
+Widget commonButton(
+  String title, {
+  Color color = AppColors.green,
+  Color textColor = Colors.white,
+  double textSize = 18,
+  double width = double.infinity,
+  double height = 50,
+  VoidCallback? onTap,
+  bool isLoading = false,
+}) {
   return GestureDetector(
-    onTap: onTap,
+    onTap: isLoading ? null : onTap,
     child: Container(
       height: height,
       width: width,
@@ -261,24 +260,31 @@ Widget commonButton(String title,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: isLoading
-              ? const CircularProgressIndicator()
-              : commonText(title,
-                  size: textSize, color: textColor, isBold: true),
+          child:
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : commonText(
+                    title,
+                    size: textSize,
+                    color: textColor,
+                    isBold: true,
+                  ),
         ),
       ),
     ),
   );
 }
 
-Widget commonBorderButton(String title,
-    {double width = double.infinity,
-    VoidCallback? onTap,
-    Color borderColor = AppColors.gold,
-    double borderWidth = 1.0,
-    String? imagePath, // Optional image parameter
-    double imageSize = 24.0,
-    Color textColor = AppColors.black}) {
+Widget commonBorderButton(
+  String title, {
+  double width = double.infinity,
+  VoidCallback? onTap,
+  Color borderColor = AppColors.gold,
+  double borderWidth = 1.0,
+  String? imagePath, // Optional image parameter
+  double imageSize = 24.0,
+  Color textColor = AppColors.black,
+}) {
   return GestureDetector(
     onTap: onTap,
     child: Container(
@@ -286,10 +292,7 @@ Widget commonBorderButton(String title,
       width: width,
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: borderColor,
-          width: borderWidth,
-        ),
+        border: Border.all(color: borderColor, width: borderWidth),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Center(
@@ -315,7 +318,10 @@ Widget commonBorderButton(String title,
 }
 
 Widget buildOTPTextField(
-    TextEditingController controller, int index, BuildContext context) {
+  TextEditingController controller,
+  int index,
+  BuildContext context,
+) {
   return SizedBox(
     width: 55,
     height: 55,
@@ -324,10 +330,7 @@ Widget buildOTPTextField(
       keyboardType: TextInputType.number,
       textAlign: TextAlign.center,
       cursorColor: Colors.black,
-      style: const TextStyle(
-        fontSize: 20,
-        fontFamily: 'TenorSans',
-      ),
+      style: const TextStyle(fontSize: 20, fontFamily: 'TenorSans'),
       maxLength: 1,
       decoration: InputDecoration(
         counterText: '',
@@ -374,10 +377,7 @@ class RoundedCapProgressIndicator extends StatelessWidget {
         progressColor: progressColor,
         strokeWidth: strokeWidth,
       ),
-      child: SizedBox(
-        width: 120,
-        height: 120,
-      ),
+      child: SizedBox(width: 120, height: 120),
     );
   }
 }
@@ -399,24 +399,27 @@ class _RoundedCapPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
-    final backgroundPaint = Paint()
-      ..color = backgroundColor
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke;
+    final backgroundPaint =
+        Paint()
+          ..color = backgroundColor
+          ..strokeWidth = strokeWidth
+          ..style = PaintingStyle.stroke;
 
     // Draw the background circle
     canvas.drawCircle(center, radius - strokeWidth / 2, backgroundPaint);
 
-    final progressPaint = Paint()
-      ..shader = LinearGradient(
-        colors: [progressColor, progressColor], // Gradient color effect
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(Rect.fromCircle(center: center, radius: radius))
-      ..strokeCap =
-          StrokeCap.round // This is where the rounded caps are defined
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke;
+    final progressPaint =
+        Paint()
+          ..shader = LinearGradient(
+            colors: [progressColor, progressColor], // Gradient color effect
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ).createShader(Rect.fromCircle(center: center, radius: radius))
+          ..strokeCap =
+              StrokeCap
+                  .round // This is where the rounded caps are defined
+          ..strokeWidth = strokeWidth
+          ..style = PaintingStyle.stroke;
 
     // Draw the progress arc
     canvas.drawArc(

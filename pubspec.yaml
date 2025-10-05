@@ -41,6 +41,7 @@ dependencies:
   flutter_riverpod: ^3.0.1
   http: ^1.5.0
   another_flushbar: ^1.12.32
+  image_picker: ^1.2.0
 
 dev_dependencies:
   flutter_test:

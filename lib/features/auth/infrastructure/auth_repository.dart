@@ -1,13 +1,16 @@
 // features/auth/infrastructure/auth_repository.dart
-import 'package:cole20/features/auth/domain/email_verification_response.dart';
-import 'package:cole20/features/auth/domain/forget_password_response.dart';
-import 'package:cole20/features/auth/domain/signup_response.dart';
-import 'package:cole20/features/auth/domain/verify_otp_response.dart';
+import 'dart:io';
+
+import 'package:cole20/features/auth/domain/response_model/compleate_profile_response.dart';
+import 'package:cole20/features/auth/domain/response_model/email_verification_response.dart';
+import 'package:cole20/features/auth/domain/response_model/forget_password_response.dart';
+import 'package:cole20/features/auth/domain/response_model/signup_response.dart';
+import 'package:cole20/features/auth/domain/response_model/verify_otp_response.dart';
 
 import '../../../core/api/i_api_service.dart';
 import '../../../core/apiEndPoints.dart';
-import '../domain/sign_in_response.dart';
-import '../domain/i_auth_repository.dart';
+import '../domain/response_model/sign_in_response.dart';
+import '../domain/repository/i_auth_repository.dart';
 
 class AuthRepository implements IAuthRepository {
   final IApiService _api;
@@ -54,7 +57,6 @@ class AuthRepository implements IAuthRepository {
     return ForgetPasswordResponse.fromJson(res['data']);
   }
 
-
   @override
   Future<VerifyOTPResponse> verifyOTP(String otp) async {
     final res = await _api.patch(ApiEndpoints.verifyOTP, {"otp": otp});
@@ -72,5 +74,22 @@ class AuthRepository implements IAuthRepository {
       "newPassword": password,
       "confirmPassword": confirmPassword,
     });
+  }
+
+  @override
+  Future<CompleteProfileResponse> completeProfile(
+    String fullName,
+    String phone,
+    String gender,
+    File? image,
+  ) async {
+    final res = await _api.multipart(
+      ApiEndpoints.completeProfile,
+      method: "PATCH",
+      body: {"fullName": fullName, "phone": phone, "gender": gender},
+      files: {if (image != null) "image": image},
+    );
+
+    return CompleteProfileResponse.fromJson(res);
   }
 }

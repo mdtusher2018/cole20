@@ -35,9 +35,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     if (authState.isAuthenticated) {
       slideNavigationPushAndRemoveUntil(RootPage(), context);
     } else if (authState.hasError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authState.errorMessage.toString())),
-      );
+      showSnackBar(context: context, title: "Error", message: authState.errorMessage.toString());
     }
   }
 

@@ -1,4 +1,4 @@
-import 'package:cole20/features/auth/domain/i_auth_repository.dart';
+import 'package:cole20/features/auth/domain/repository/i_auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'localstorage/local_storage_service.dart';

@@ -1,5 +1,5 @@
 // features/auth/domain/auth_response.dart
-import 'user_model.dart';
+import '../user_model.dart';
 
 class SignInResponse {
   final User user;

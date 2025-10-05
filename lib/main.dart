@@ -1,4 +1,5 @@
 import 'package:cole20/core/localstorage/local_storage_service.dart';
+import 'package:cole20/features/auth/presentation/compleate_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:cole20/features/auth/presentation/signin.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.green,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: SignInScreen(),
+      home: CompleteProfileScreen(),
     );
   }
 }

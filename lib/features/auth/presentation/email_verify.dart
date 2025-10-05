@@ -3,7 +3,7 @@ import 'package:cole20/features/auth/application/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:cole20/core/assets.dart';
 import 'package:cole20/core/colors.dart';
-import 'package:cole20/features/profile/presentation/compleate_profile.dart';
+import 'package:cole20/features/auth/presentation/compleate_profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/commonWidgets.dart';
 
