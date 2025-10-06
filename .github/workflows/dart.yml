@@ -1,33 +1,41 @@
-name: Flutter - Android Build apk
+name: Flutter Build and Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: '21'
-          distribution: 'zulu'
-
-      - name: Setup Flutter
+      # Set up Flutter (this also sets up Dart)
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          flutter-version: 3.7.2
+          flutter-version: 3.7.2  # Use the Flutter version you're working with
 
+      # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
+      # Run Flutter tests
+      - name: Run Flutter tests
+        run: flutter test
+
+      # Build APK
       - name: Build APK
-        run: flutter build apk --release --build-name=1.0.0
+        run: flutter build apk --release
+
+      # Upload the APK as an artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
