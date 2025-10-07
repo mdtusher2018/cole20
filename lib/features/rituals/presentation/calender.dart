@@ -1,4 +1,5 @@
 import 'package:cole20/core/providers.dart';
+import 'package:cole20/utils/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -41,19 +42,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   void initState() {
     super.initState();
 
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    if (CalendarScreen.selectedIndex == null) {
-      final initialNotifier = ref.read(homePageNotifierProvider(1).notifier);
-      final today = await initialNotifier.fetchCurrentDay() ?? 1;
-      CalendarScreen.selectedIndex = today - 1;
-      ref.invalidate(homePageNotifierProvider(today));
-      await ref.read(homePageNotifierProvider(today).notifier).fetchRituals(day: today);
-    } else {
-      final day = (CalendarScreen.selectedIndex ?? 0) + 1;
-      ref.invalidate(homePageNotifierProvider(day));
-      await ref.read(homePageNotifierProvider(day).notifier).fetchRituals(day: day);
-    }
-  });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (CalendarScreen.selectedIndex == null) {
+        final initialNotifier = ref.read(homePageNotifierProvider(1).notifier);
+        final today = await initialNotifier.fetchCurrentDay() ?? 1;
+        CalendarScreen.selectedIndex = today - 1;
+        ref.invalidate(homePageNotifierProvider(today));
+        await ref
+            .read(homePageNotifierProvider(today).notifier)
+            .fetchRituals(day: today);
+      } else {
+        final day = (CalendarScreen.selectedIndex ?? 0) + 1;
+        ref.invalidate(homePageNotifierProvider(day));
+        await ref
+            .read(homePageNotifierProvider(day).notifier)
+            .fetchRituals(day: day);
+      }
+    });
   }
 
   @override
@@ -111,119 +116,135 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       body:
           ritualState.isLoading && ritualState.categories.isEmpty
               ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      height: 80,
-                      child: Row(
-                        children: [
-                          InkWell(
-                            onTap: _scrollLeft,
-                            child: const Icon(Icons.arrow_back_ios_new),
+              : ListView(
+                padding: EdgeInsets.all(16),
+                children: [
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 80,
+                    child: Row(
+                      children: [
+                        InkWell(
+                          onTap: _scrollLeft,
+                          child: const Icon(Icons.arrow_back_ios_new),
+                        ),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            itemCount: 45,
+                            itemBuilder: (context, index) {
+                              return _buildDayItem(
+                                (index + 1).toString(),
+                                isSelected:
+                                    index == CalendarScreen.selectedIndex,
+                                onTap: () {
+                                  setState(() {
+                                    CalendarScreen.selectedIndex = index;
+                                  });
+                                  ref
+                                      .read(
+                                        homePageNotifierProvider(
+                                          index + 1,
+                                        ).notifier,
+                                      )
+                                      .fetchRituals(day: index + 1);
+                                },
+                              );
+                            },
                           ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: ListView.builder(
-                              controller: _scrollController,
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                              ),
-                              itemCount: 45,
-                              itemBuilder: (context, index) {
-                                return _buildDayItem(
-                                  (index + 1).toString(),
-                                  isSelected:
-                                      index == CalendarScreen.selectedIndex,
-                                  onTap: () {
-                                    setState(() {
-                                      CalendarScreen.selectedIndex = index;
-                                    });
-                                    ref
-                                        .read(
-                                          homePageNotifierProvider(
-                                            index + 1,
-                                          ).notifier,
-                                        )
-                                        .fetchRituals(day: index + 1);
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 5),
-                          InkWell(
-                            onTap: _scrollRight,
-                            child: const Icon(Icons.arrow_forward_ios_outlined),
-                          ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 5),
+                        InkWell(
+                          onTap: _scrollRight,
+                          child: const Icon(Icons.arrow_forward_ios_outlined),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: commonText("Your Rituals", size: 20),
-                      ),
+                  ),
+                  const SizedBox(height: 10),
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: commonText("Your Rituals", size: 20),
                     ),
-                    const SizedBox(height: 10),
-                    ritualState.hasError
-                        ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 24.0),
-                            child: commonText(
-                              ritualState.errorMessage ??
-                                  "Failed to load rituals",
-                              size: 18,
-                              isBold: true,
-                            ),
+                  ),
+                  const SizedBox(height: 10),
+                  ritualState.hasError
+                      ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 24.0),
+                          child: commonText(
+                            ritualState.errorMessage ??
+                                "Failed to load rituals",
+                            size: 18,
+                            isBold: true,
                           ),
-                        )
-                        : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children:
-                              ritualState.categories.map((category) {
-                                final color = _hexToColor(category.colorCode);
-                                return _buildCategoryTasks(
-                                  categoryName: category.categoryName,
-                                  color: color,
-                                  tasks:
-                                      category.rituals.map((ritual) {
-                                          return _buildTaskItem(
-                                            ritual.title,
-                                            Icon(
-                                              Icons.access_time_filled,
-                                              color: AppColors.white,
-                                            ),
-                                            color,
-                                            () {
-                                              slideNavigationPushAndRemoveUntil(
-                                                MeditationTimerPage(ritual: ritual,currentDay: ritualState.today,),
-                                                onlypush: true,
-                                                context,
-                                              );
-                                            },
-                                          );
-                                        }).toList()
-                                        ..add(
-                                          _buildAddTaskButton(color, () {
-                                            RootPage.selectedIndex = 2;
+                        ),
+                      )
+                      : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                            ritualState.categories.map((category) {
+                              final color = hexToColor(category.colorCode);
+                              return _buildCategoryTasks(
+                                categoryName: category.categoryName,
+                                color: color,
+                                tasks:
+                                    category.rituals.map((ritual) {
+                                        return _buildTaskItem(
+                                          ritual.title,
+                                          Icon(
+                                            Icons.access_time_filled,
+                                            color: AppColors.white,
+                                          ),
+                                          color,
+                                          () {
                                             slideNavigationPushAndRemoveUntil(
-                                              const RootPage(),
+                                              MeditationTimerPage(
+                                                ritual: ritual,
+                                                currentDay: ritualState.today,
+                                              ),
+                                              onlypush: true,
                                               context,
                                             );
-                                          }),
-                                        ),
-                                );
-                              }).toList(),
-                        ),
-                  ],
-                ),
-              ),
+                                          },
+                                        );
+                                      }).toList()
+                                      ..add(
+                                        _buildAddTaskButton(color, () {
+                                          RootPage.selectedIndex = 2;
+                                          slideNavigationPushAndRemoveUntil(
+                                            const RootPage(),
+                                            context,
+                                          );
+                                        }),
+                                      ),
+                              );
+                            }).toList(),
+                      ),
+                ],
+              ).withRefresh(() async {
+                if (CalendarScreen.selectedIndex == null) {
+                  final initialNotifier = ref.read(
+                    homePageNotifierProvider(1).notifier,
+                  );
+                  final today = await initialNotifier.fetchCurrentDay() ?? 1;
+                  CalendarScreen.selectedIndex = today - 1;
+                  ref.invalidate(homePageNotifierProvider(today));
+                  await ref
+                      .read(homePageNotifierProvider(today).notifier)
+                      .fetchRituals(day: today);
+                } else {
+                  final day = (CalendarScreen.selectedIndex ?? 0) + 1;
+                  ref.invalidate(homePageNotifierProvider(day));
+                  await ref
+                      .read(homePageNotifierProvider(day).notifier)
+                      .fetchRituals(day: day);
+                }
+              }),
     );
   }
 
@@ -405,8 +426,4 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  Color _hexToColor(String hex) {
-    final cleanHex = hex.replaceAll("#", "");
-    return Color(int.parse("FF$cleanHex", radix: 16));
-  }
 }

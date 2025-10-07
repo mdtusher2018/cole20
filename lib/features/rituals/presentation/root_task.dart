@@ -61,64 +61,62 @@ class _RootTaskScreenState extends ConsumerState<RootTaskScreen> {
           color: AppColors.black,
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Add Your Own Task Button
-            GestureDetector(
-              onTap: () {
-                slideNavigationPushAndRemoveUntil(
-                  AddRitualScreen(currentDay: ritualState.today,),
-                  onlypush: true,
-                  context,
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.black),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.add, color: AppColors.black),
-                    const SizedBox(width: 10),
-                    commonText(
-                      "Add your own ritual",
-                      size: 16,
-                      color: AppColors.black,
-                    ),
-                  ],
-                ),
+      body: ListView(
+        padding: EdgeInsets.all(16),
+        children: [
+          // Add Your Own Task Button
+          GestureDetector(
+            onTap: () {
+              slideNavigationPushAndRemoveUntil(
+                AddRitualScreen(currentDay: ritualState.today),
+                onlypush: true,
+                context,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.black),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.add, color: AppColors.black),
+                  const SizedBox(width: 10),
+                  commonText(
+                    "Add your own ritual",
+                    size: 16,
+                    color: AppColors.black,
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
+          ),
+          const SizedBox(height: 16),
 
-            // Dynamically render each category
-            ListView.builder(
-              itemCount: categories.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+          // Dynamically render each category
+          ListView.builder(
+            itemCount: categories.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
 
-              itemBuilder: (context, index) {
-                final category = categories[index];
-                return _buildCategoryTasks(category,ritualState);
-              },
-            ),
-          ],
-        ),
-      ),
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return _buildCategoryTasks(category, ritualState);
+            },
+          ),
+        ],
+      ).withRefresh(() async {
+        ref
+            .read(homePageNotifierProvider(currentDay!).notifier)
+            .fetchRituals(day: currentDay!, hardRefresh: true);
+      }),
     );
   }
 
-  Widget _buildCategoryTasks(RitualCategory category,HomepageState state) {
-    final color = _hexToColor(category.colorCode);
+  Widget _buildCategoryTasks(RitualCategory category, HomepageState state) {
+    final color = hexToColor(category.colorCode);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +148,7 @@ class _RootTaskScreenState extends ConsumerState<RootTaskScreen> {
             color,
             () {
               slideNavigationPushAndRemoveUntil(
-                MeditationTimerPage(ritual: r,currentDay: state.today,),
+                MeditationTimerPage(ritual: r, currentDay: state.today),
                 onlypush: true,
                 context,
               );
@@ -224,8 +222,5 @@ class _RootTaskScreenState extends ConsumerState<RootTaskScreen> {
     );
   }
 
-  Color _hexToColor(String hex) {
-    final cleanHex = hex.replaceAll("#", "");
-    return Color(int.parse("FF$cleanHex", radix: 16));
-  }
+
 }

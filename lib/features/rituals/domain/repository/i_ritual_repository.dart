@@ -1,5 +1,5 @@
 import 'package:cole20/features/rituals/domain/category_name_model.dart';
-import 'package:cole20/features/rituals/domain/current_day_response.dart';
+import 'package:cole20/features/rituals/domain/response/current_day_response.dart';
 import 'package:cole20/features/rituals/domain/ritual_category_model.dart';
 import 'package:cole20/features/rituals/domain/ritual_model.dart';
 
@@ -18,8 +18,8 @@ abstract class IRitualRepository {
   Future<Ritual> editRitual(Ritual ritual);
 
 
-  Future<String> completeRitual(String ritualId);
+  Future<(String,int)> completeRitual(String ritualId);
 
-  Future<String> deleteRitual(String ritualId);
+  Future<(String,int)> deleteRitual(String ritualId);
 
 }

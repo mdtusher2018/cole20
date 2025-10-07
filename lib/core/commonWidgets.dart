@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cole20/core/colors.dart';
 import 'dart:math' as math;
 import 'package:another_flushbar/flushbar.dart';
+import 'package:lottie/lottie.dart';
 
 Widget commonText(
   String text, {
@@ -436,3 +437,47 @@ class _RoundedCapPainter extends CustomPainter {
     return true;
   }
 }
+
+
+Future<void> showLottieDialog({required BuildContext context}) async {
+  await showDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.transparent,
+    builder: (context) {
+      return   Stack(
+        children: [
+          // Positioned at bottom center
+          Positioned(
+            bottom: 80,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Lottie.asset(
+                    "assets/animations/party.json",
+                    width: 150,
+                    height: 150,
+                    repeat: false,
+                    fit: BoxFit.cover,
+                    onLoaded: (composition) {
+                      Future.delayed(composition.duration, () {
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                      });
+                    },
+                  ),
+                             
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+

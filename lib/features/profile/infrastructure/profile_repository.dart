@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:cole20/core/api/i_api_service.dart';
 import 'package:cole20/core/apiEndPoints.dart';
 import 'package:cole20/features/profile/domain/repository/i_profile_repository.dart';
+import 'package:cole20/features/profile/domain/response_model/about_response.dart';
 import 'package:cole20/features/profile/domain/response_model/change_password.dart';
 import 'package:cole20/features/profile/domain/response_model/profile_response.dart';
+import 'package:cole20/features/profile/domain/response_model/ritual_progress_model.dart';
 import 'package:cole20/features/profile/domain/response_model/update_profile_response.dart';
 
 class ProfileRepository implements IProfileRepository {
@@ -15,9 +17,8 @@ class ProfileRepository implements IProfileRepository {
 
   @override
   Future<ProfileResponse> fetchProfile() async {
-    // adjust ApiEndpoints.getProfile to your actual endpoint constant
     final res = await _api.get(ApiEndpoints.getProfile);
-    // response shape expected: { success, statusCode, message, data: { user: {...} } }
+
     return ProfileResponse.fromJson(res);
   }
 
@@ -45,13 +46,34 @@ class ProfileRepository implements IProfileRepository {
   }
 
   @override
-  Future<ChangePasswordResponse> changePassword(String oldPassword, String newPassword) async {
-    final response= await _api.patch(ApiEndpoints.changePassword, {
+  Future<ChangePasswordResponse> changePassword(
+    String oldPassword,
+    String newPassword,
+  ) async {
+    final response = await _api.patch(ApiEndpoints.changePassword, {
       "oldPassword": oldPassword,
       "newPassword": newPassword,
     });
     return ChangePasswordResponse.fromJson(response);
   }
 
+  @override
+  Future<List<RitualProgressCategory>> fetchRitualProgress() async {
+    try {
+      final response = await _api.get(ApiEndpoints.userProgress);
+      final List dataList = response['data'] ?? [];
+      return dataList
+          .map((json) => RitualProgressCategory.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch ritual progress: $e');
+    }
+  }
 
+  @override
+  Future<AboutResponse> fetchAbout() async {
+    final response = await _api.get(ApiEndpoints.about);
+    final aboutResponse = AboutResponse.fromJson(response['data']);
+    return aboutResponse;
+  }
 }

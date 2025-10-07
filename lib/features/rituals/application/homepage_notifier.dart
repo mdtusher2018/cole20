@@ -1,43 +1,80 @@
-import 'package:cole20/features/rituals/domain/i_ritual_repository.dart';
+import 'dart:developer';
+
+import 'package:cole20/core/localstorage/i_local_storage_service.dart';
+import 'package:cole20/core/localstorage/storage_key.dart';
+import 'package:cole20/features/rituals/domain/repository/i_ritual_repository.dart';
 import 'package:cole20/features/rituals/domain/ritual_category_model.dart';
 import 'package:cole20/features/rituals/domain/ritual_model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'homepage_state.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class HomePageNotifier extends StateNotifier<HomepageState> {
   final IRitualRepository _repository;
+  final ILocalStorageService _localStorageService;
   final Map<int, List<RitualCategory>> _cachedRituals = {};
 
-  HomePageNotifier(this._repository) : super(HomepageState.initial()){
+  HomePageNotifier(this._repository, this._localStorageService)
+    : super(HomepageState.initial()) {
     fetchCategoryName();
   }
 
-  Future<int?> fetchCurrentDay() async {
-    if (kDebugMode) return 3;
+  Future<String> fetchName() async {
+    final token = await _localStorageService.getString(StorageKey.token);
+
+    if (token == null || token.isEmpty) {
+      return "Guest";
+    }
+
     try {
-      // Don’t reset everything — just show subtle loading if needed
+      // Decode token safely
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+
+      // Adjust key according to your token structure
+      final fullName =
+          decodedToken['fullName'] ??
+          decodedToken['name'] ??
+          decodedToken['userName'] ??
+          "User";
+
+      return fullName;
+    } catch (e) {
+      return "User";
+    }
+  }
+
+  Future<int?> fetchCurrentDay() async {
+    // if (kDebugMode) return 1;
+
+    try {
       state = state.copyWith(status: HomePageStatus.loading);
 
       final currentDayResponse = await _repository.fetchCurrentDay();
+      log("Today=======>>>>>>>>>");
       final today = currentDayResponse.days;
+      final unreadNotification = currentDayResponse.unreadCount;
 
-      // Keep the current data, only update today
-      state = state.copyWith(today: today);
+      state = state.copyWith(
+        today: today,
+        unreadNotification: unreadNotification,
+      );
 
-      // Fetch rituals for the current day
       await fetchRituals(day: today);
 
       return today;
     } catch (e) {
+      log("Today=======>>>>>>>>>2");
       state = HomepageState.error(e.toString());
       return null;
     }
   }
 
-  Future<void> fetchRituals({required int day}) async {
+  Future<void> fetchRituals({
+    required int day,
+    bool hardRefresh = false,
+  }) async {
     // ✅ Check cache first
-    if (_cachedRituals.containsKey(day)) {
+    if (_cachedRituals.containsKey(day) && !hardRefresh) {
       state = state.copyWith(
         status: HomePageStatus.loaded,
         categories: _cachedRituals[day],
@@ -64,7 +101,7 @@ class HomePageNotifier extends StateNotifier<HomepageState> {
   }
 
   // Add a new ritual
-  Future<void> addRitual({
+  Future<bool> addRitual({
     required String title,
     required String categoryId,
     required int startDay,
@@ -97,8 +134,11 @@ class HomePageNotifier extends StateNotifier<HomepageState> {
         successMessage: "Ritual added successfully",
         isSubmitting: false,
       );
+
+      return true;
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString(), isSubmitting: false);
+      return false;
     }
   }
 
@@ -146,97 +186,104 @@ class HomePageNotifier extends StateNotifier<HomepageState> {
     }
   }
 
-
-
-
   /// Complete a ritual
-  Future<void> completeRitual(String ritualId) async {
+  Future<bool> completeRitual(String ritualId) async {
     try {
       state = state.copyWith(isSubmitting: true);
-      final message = await _repository.completeRitual(ritualId);
+      final (message, status) = await _repository.completeRitual(ritualId);
 
-      // Optionally, update local state to mark ritual as complete
-      final updatedCategories = state.categories.map((category) {
-        final updatedRituals = category.rituals.map((ritual) {
-          if (ritual.id == ritualId) {
-            return Ritual(
-              id: ritual.id,
-              title: ritual.title,
-              categoryId: ritual.categoryId,
-              startDay: ritual.startDay,
-              duration: ritual.duration,
-              createdByUser: ritual.createdByUser,
-              creatorRole: ritual.creatorRole,
-              createdAt: ritual.createdAt,
-              isComplete: true,
+      final updatedCategories =
+          state.categories.map((category) {
+            final updatedRituals =
+                category.rituals.map((ritual) {
+                  if (ritual.id == ritualId) {
+                    return Ritual(
+                      id: ritual.id,
+                      title: ritual.title,
+                      categoryId: ritual.categoryId,
+                      startDay: ritual.startDay,
+                      duration: ritual.duration,
+                      createdByUser: ritual.createdByUser,
+                      creatorRole: ritual.creatorRole,
+                      createdAt: ritual.createdAt,
+                      isComplete: status == 200 ? true : false,
+                    );
+                  }
+                  return ritual;
+                }).toList();
+
+            return RitualCategory(
+              id: category.id,
+              categoryName: category.categoryName,
+              colorName: category.colorName,
+              colorCode: category.colorCode,
+              icon: category.icon,
+              serialNumber: category.serialNumber,
+              totalRitual: category.totalRitual,
+              completeRitual: category.completeRitual + 1,
+              rituals: updatedRituals,
             );
-          }
-          return ritual;
-        }).toList();
-
-        return RitualCategory(
-          id: category.id,
-          categoryName: category.categoryName,
-          colorName: category.colorName,
-          colorCode: category.colorCode,
-          icon: category.icon,
-          serialNumber: category.serialNumber,
-          totalRitual: category.totalRitual,
-          completeRitual: category.completeRitual + 1,
-          rituals: updatedRituals,
-        );
-      }).toList();
+          }).toList();
 
       state = state.copyWith(
         categories: updatedCategories,
         successMessage: message,
         isSubmitting: false,
       );
+      return status == 200;
     } catch (e) {
       state = state.copyWith(
         errorMessage: 'Failed to complete ritual: $e',
         isSubmitting: false,
       );
+      return false;
     }
   }
 
   /// Delete a ritual
-  Future<void> deleteRitual(String ritualId) async {
+  Future<bool> deleteRitual(String ritualId) async {
     try {
       state = state.copyWith(isSubmitting: true);
-      final message = await _repository.deleteRitual(ritualId);
+      final (message, statuscode) = await _repository.deleteRitual(ritualId);
 
-      // Remove ritual locally
-      final updatedCategories = state.categories.map((category) {
-        final updatedRituals =
-            category.rituals.where((ritual) => ritual.id != ritualId).toList();
+      final updatedCategories =
+          state.categories.map((category) {
+            final updatedRituals =
+                category.rituals
+                    .where(
+                      (ritual) =>
+                          (statuscode == 200) ? ritual.id != ritualId : true,
+                    )
+                    .toList();
 
-        return RitualCategory(
-          id: category.id,
-          categoryName: category.categoryName,
-          colorName: category.colorName,
-          colorCode: category.colorCode,
-          icon: category.icon,
-          serialNumber: category.serialNumber,
-          totalRitual: updatedRituals.length,
-          completeRitual: category.completeRitual,
-          rituals: updatedRituals,
-        );
-      }).toList();
+            return RitualCategory(
+              id: category.id,
+              categoryName: category.categoryName,
+              colorName: category.colorName,
+              colorCode: category.colorCode,
+              icon: category.icon,
+              serialNumber: category.serialNumber,
+              totalRitual: updatedRituals.length,
+              completeRitual: category.completeRitual,
+              rituals: updatedRituals,
+            );
+          }).toList();
 
       state = state.copyWith(
         categories: updatedCategories,
         successMessage: message,
         isSubmitting: false,
       );
+      if (statuscode != 200) {
+        state = state.copyWith(errorMessage: message, isSubmitting: false);
+      }
+      return statuscode == 200;
     } catch (e) {
       state = state.copyWith(
         errorMessage: 'Failed to delete ritual: $e',
         isSubmitting: false,
       );
+      return false;
     }
   }
-
-
-  
 }

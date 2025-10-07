@@ -42,6 +42,8 @@ dependencies:
   http: ^1.5.0
   another_flushbar: ^1.12.32
   image_picker: ^1.2.0
+  jwt_decoder: ^2.0.1
+  flutter_html: ^3.0.0
 
 dev_dependencies:
   flutter_test:

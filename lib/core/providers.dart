@@ -1,7 +1,10 @@
 import 'package:cole20/features/auth/domain/repository/i_auth_repository.dart';
+import 'package:cole20/features/meditation/application/notification_notifier.dart';
+import 'package:cole20/features/meditation/application/notification_state.dart';
+import 'package:cole20/features/meditation/infrastructure/notification_repository.dart';
 import 'package:cole20/features/rituals/application/homepage_notifier.dart';
 import 'package:cole20/features/rituals/application/homepage_state.dart';
-import 'package:cole20/features/rituals/domain/i_ritual_repository.dart';
+import 'package:cole20/features/rituals/domain/repository/i_ritual_repository.dart';
 import 'package:cole20/features/rituals/infrastructure/ritual_repository.dart';
 import 'package:cole20/features/profile/application/profile_notifier.dart';
 import 'package:cole20/features/profile/application/profile_state.dart';
@@ -73,5 +76,20 @@ final ritualRepositoryProvider = Provider.family<IRitualRepository, int>((ref, d
 final homePageNotifierProvider =
     StateNotifierProvider.family<HomePageNotifier, HomepageState, int>((ref, day) {
   final repo = ref.read(ritualRepositoryProvider(day));
-  return HomePageNotifier(repo);
+  final localStorage = ref.read(localStorageProvider);
+  return HomePageNotifier(repo,localStorage);
 });
+
+
+final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {
+  final api = ref.read(apiServiceProvider);
+  return NotificationRepository(api);
+});
+
+final notificationNotifierProvider =
+    StateNotifierProvider<NotificationNotifier, NotificationState>((ref) {
+  final repo = ref.read(notificationRepositoryProvider);
+  return NotificationNotifier(repo);
+});
+
+

@@ -1,4 +1,5 @@
 import 'package:cole20/core/apiEndPoints.dart';
+import 'package:flutter/material.dart';
 
 String getFullImagePath(String imagePath) {
   if (imagePath.isEmpty) {
@@ -16,3 +17,17 @@ String getFullImagePath(String imagePath) {
   }
   return '${ApiEndpoints.baseImageUrl}/$imagePath';
 }
+
+extension Refreshable on Widget {
+  Widget withRefresh(Future<void> Function() onRefresh) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: this,
+    );
+  }
+}
+
+  Color hexToColor(String hex) {
+    final cleanHex = hex.replaceAll("#", "");
+    return Color(int.parse("FF$cleanHex", radix: 16));
+  }

@@ -6,7 +6,7 @@ import 'package:cole20/core/colors.dart';
 import 'package:cole20/core/commonWidgets.dart';
 import 'package:cole20/features/rituals/presentation/root_page.dart';
 import 'package:cole20/features/meditation/presentation/meditation_timer_page.dart';
-import 'package:cole20/features/meditation/presentation/notifications.dart';
+import 'package:cole20/features/meditation/presentation/notifications_screen.dart';
 import 'package:cole20/features/rituals/domain/ritual_category_model.dart';
 import 'package:cole20/core/providers.dart';
 
@@ -56,6 +56,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     }
 
     final ritualState = ref.watch(homePageNotifierProvider(currentDay!));
+    final ritualController = ref.read(
+      homePageNotifierProvider(currentDay!).notifier,
+    );
 
     final isFirstLoad = ritualState.isLoading && ritualState.categories.isEmpty;
 
@@ -77,7 +80,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 commonText(" 45 cole20", size: 18.0, color: AppColors.gold),
               ],
             ),
-            subtitle: commonText("Good Morning, Sakib Al Hasan!", size: 14.0),
+            subtitle: FutureBuilder<String>(
+              future: ritualController.fetchName(), // async call
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return commonText("Loading...", size: 14.0);
+                }
+
+                final fullName = snapshot.data ?? "User";
+                return commonText("Good Morning, $fullName!", size: 14.0);
+              },
+            ),
+
             trailing: InkWell(
               onTap: () {
                 slideNavigationPushAndRemoveUntil(
@@ -86,7 +100,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   context,
                 );
               },
-              child: Image.asset("assets/images/notification.png"),
+              child:
+                  ritualState.unreadNotification > 0
+                      ? Icon(Icons.notifications_active)
+                      : Icon(
+                        Icons.notifications,
+                        color: Colors.amberAccent,
+                        size: 32,
+                      ),
             ),
           ),
           Divider(color: AppColors.black.withOpacity(0.5)),
@@ -96,57 +117,59 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 horizontal: 20.0,
                 vertical: 10,
               ),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        commonText("Today's Rituals", size: 18.0, isBold: true),
-                        commonButton(
-                          "Day ${ritualState.today}",
-                          color: AppColors.gray,
-                          textColor: AppColors.black,
-                          width: 80,
-                          height: 30,
-                          textSize: 14,
-                        ),
-                      ],
-                    ),
-
-                    ListView.separated(
-                      separatorBuilder: (context, index) {
-                        return SizedBox(height: 21);
-                      },
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      itemCount: categories.length,
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        return buildCategorySection(categories[index],ritualState);
-                      },
-                    ),
-
-                    Center(
-                      child: InkWell(
-                        onTap: () {
-                          RootPage.selectedIndex = 2;
-                          slideNavigationPushAndRemoveUntil(
-                            RootPage(),
-                            context,
-                          );
-                        },
-                        child: commonText(
-                          "See All Available Rituals",
-                          size: 16,
-                        ),
+              child: ListView(
+                padding: EdgeInsets.all(0),
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      commonText("Today's Rituals", size: 18.0, isBold: true),
+                      commonButton(
+                        "Day ${ritualState.today}",
+                        color: AppColors.gray,
+                        textColor: AppColors.black,
+                        width: 80,
+                        height: 30,
+                        textSize: 14,
                       ),
+                    ],
+                  ),
+
+                  ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return SizedBox(height: 21);
+                    },
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    itemCount: categories.length,
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return buildCategorySection(
+                        categories[index],
+                        ritualState,
+                      );
+                    },
+                  ),
+
+                  Center(
+                    child: InkWell(
+                      onTap: () {
+                        RootPage.selectedIndex = 2;
+                        slideNavigationPushAndRemoveUntil(RootPage(), context);
+                      },
+                      child: commonText("See All Available Rituals", size: 16),
                     ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
-              ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ).withRefresh(() async {
+                ritualController.fetchCurrentDay().then((value) {
+                  ritualController.fetchRituals(
+                    day: value ?? 0,
+                    hardRefresh: true,
+                  );
+                });
+              }),
             ),
           ),
         ],
@@ -154,8 +177,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Widget buildCategorySection(RitualCategory category,HomepageState state) {
-    final color = _hexToColor(category.colorCode);
+  Widget buildCategorySection(RitualCategory category, HomepageState state) {
+    final color = hexToColor(category.colorCode);
     int completedCount =
         category.rituals.where((r) => r.isComplete).length; // progress
     int totalCount = category.rituals.length;
@@ -222,7 +245,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           InkWell(
             onTap: () {
               slideNavigationPushAndRemoveUntil(
-                MeditationTimerPage(ritual: ritual,currentDay: state.today,),
+                MeditationTimerPage(ritual: ritual, currentDay: state.today),
                 onlypush: true,
                 context,
               );
@@ -283,8 +306,5 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     );
   }
 
-  Color _hexToColor(String hex) {
-    final cleanHex = hex.replaceAll("#", "");
-    return Color(int.parse("FF$cleanHex", radix: 16));
-  }
+
 }

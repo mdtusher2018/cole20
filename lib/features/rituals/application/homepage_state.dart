@@ -9,6 +9,7 @@ class HomepageState {
   final List<RitualCategory> categories;
   final String? errorMessage;
   final int today;
+  final int unreadNotification;
   final String? successMessage;
   final bool isRefreshing;
   final bool isSubmitting;
@@ -20,6 +21,7 @@ class HomepageState {
     this.categories = const [],
     this.errorMessage,
     this.today = 1,
+    this.unreadNotification=0,
     this.successMessage,
     this.isRefreshing = false,
     this.isSubmitting = false,
@@ -54,6 +56,7 @@ class HomepageState {
     List<RitualCategory>? categories,
     String? errorMessage,
     int? today,
+    int? unreadNotification,
     String? successMessage,
     bool? isRefreshing,
     bool? isSubmitting,
@@ -65,6 +68,7 @@ class HomepageState {
       categories: categories ?? this.categories,
       errorMessage: errorMessage ?? this.errorMessage,
       today: today ?? this.today,
+      unreadNotification: unreadNotification?? this.unreadNotification,
       successMessage: successMessage ?? this.successMessage,
       isRefreshing: isRefreshing ?? this.isRefreshing,
       isSubmitting: isSubmitting ?? this.isSubmitting,

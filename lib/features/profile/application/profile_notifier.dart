@@ -7,7 +7,7 @@ import 'profile_state.dart';
 class ProfileNotifier extends StateNotifier<ProfileState> {
   final IProfileRepository _repository;
 
-  ProfileNotifier(this._repository) : super(ProfileState.initial()){
+  ProfileNotifier(this._repository) : super(ProfileState.initial()) {
     fetchProfile();
   }
 
@@ -15,12 +15,13 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     state = ProfileState.loading();
     try {
       final res = await _repository.fetchProfile();
+      final progress = await _repository.fetchRitualProgress();
       state = ProfileState.loaded(res.user);
+      state = state.copyWith(ritualProgress: progress);
     } catch (e) {
       state = ProfileState.error(e.toString());
     }
   }
-
 
   Future<void> updateProfile({
     required String fullName,
@@ -30,27 +31,37 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   }) async {
     state = state.copyWith(status: ProfileStatus.updating);
     try {
-      final updatedProfile =
-          await _repository.updateProfile(fullName, phone, gender, image);
+      final updatedProfile = await _repository.updateProfile(
+        fullName,
+        phone,
+        gender,
+        image,
+      );
       state = ProfileState.loaded(updatedProfile.user);
     } catch (e) {
       state = ProfileState.error(e.toString());
     }
   }
 
-
-
-  Future<void> changePassword(String oldPassword,String newPassword) async {
+  Future<void> changePassword(String oldPassword, String newPassword) async {
     state = ProfileState.changingPassword();
     try {
-      final response= await _repository.changePassword(oldPassword,newPassword);
+      final response = await _repository.changePassword(
+        oldPassword,
+        newPassword,
+      );
       state = ProfileState.loaded(response.user);
     } catch (e) {
       state = ProfileState.error(e.toString());
     }
   }
 
-
-
-
+  Future<void> fetchAbout() async {
+    try {
+      final aboutData = await _repository.fetchAbout();
+      state = state.copyWith(about: aboutData);
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString());
+    }
+  }
 }

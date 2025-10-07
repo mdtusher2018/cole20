@@ -5,6 +5,7 @@ class CurrentDayResponse {
   final String userId;
   final String createdAt;
   final int days;
+  final int unreadCount;
 
   CurrentDayResponse({
     required this.success,
@@ -13,6 +14,7 @@ class CurrentDayResponse {
     required this.userId,
     required this.createdAt,
     required this.days,
+    required this.unreadCount,
   });
 
   factory CurrentDayResponse.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class CurrentDayResponse {
       userId: data['userId'] ?? '',
       createdAt: data['createdAt'] ?? '',
       days: data['days'] ?? 0,
+      unreadCount: data['unreadCount'] ?? 0,
     );
   }
 }

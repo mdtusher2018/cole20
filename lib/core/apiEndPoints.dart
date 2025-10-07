@@ -43,6 +43,15 @@ class ApiEndpoints {
   static String categoryName =
       "category/get-all-categories?sort=serialNumber&limit=1000";
 
+  static String userProgress = "completion-ritual/progress/category";
+
+  static String about = "about/get-about";
+
+  static String notifications({required int page, int? limit}) {
+    limit ??= 10;
+    return "notifications/my-notifications?page=$page&limit=$limit";
+  }
+
   static String completeRitual(String ritualId) {
     return 'completion-ritual/ritual/$ritualId';
   }

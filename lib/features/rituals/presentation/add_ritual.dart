@@ -57,19 +57,33 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
       return;
     }
 
-    await ref
+    bool result= await ref
         .read(homePageNotifierProvider(widget.currentDay).notifier)
         .addRitual(
           title: titleController.text.trim(),
           categoryId: selectedCategoryId!,
-          startDay: selectedStartDate!.difference(DateTime.now()).inDays +
-              widget.currentDay+1,
+          startDay:
+              selectedStartDate!.difference(DateTime.now()).inDays +
+              widget.currentDay +
+              1,
           duration: int.tryParse(durationController.text),
         );
 
-    // Close screen if no error
-    if (!ref.read(homePageNotifierProvider(widget.currentDay)).hasError) {
+
+    if (result) {
       Navigator.pop(context);
+        showSnackBar(
+        context: context,
+        title: "Error",
+        message: "Ritual added successfully",
+        backgroundColor: Colors.green
+      );
+    } else {
+      showSnackBar(
+        context: context,
+        title: "Error",
+        message: "Faild to add ritual",
+      );
     }
   }
 
@@ -100,39 +114,60 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
             const SizedBox(height: 20),
 
             // Category Dropdown
-            commonText("Category", size: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                commonText("Category", size: 16.0),
+                if (ritualState.categories.isEmpty)
+                  InkWell(
+                    onTap: () {
+                      ref
+                          .watch(
+                            homePageNotifierProvider(
+                              widget.currentDay,
+                            ).notifier,
+                          )
+                          .fetchCategoryName();
+                    },
+                    child: commonText("Reload Category", size: 12.0),
+                  ),
+              ],
+            ),
             const SizedBox(height: 5),
             ritualState.fetchingCategory
                 ? const Center(child: CircularProgressIndicator())
                 : Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.green, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        hint: commonText(
-                          "Select Category",
-                          size: 14.0,
-                          color: Colors.grey,
-                        ),
-                        value: selectedCategoryId,
-                        items: ritualState.categoryName.map((RitualCategoryNameModel cat) {
-                          return DropdownMenuItem<String>(
-                            value: cat.id,
-                            child: commonText(cat.name, size: 14.0),
-                          );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedCategoryId = newValue;
-                          });
-                        },
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.green, width: 1.0),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      hint: commonText(
+                        "Select Category",
+                        size: 14.0,
+                        color: Colors.grey,
                       ),
+                      value: selectedCategoryId,
+                      items:
+                          ritualState.categoryName.map((
+                            RitualCategoryNameModel cat,
+                          ) {
+                            return DropdownMenuItem<String>(
+                              value: cat.id,
+                              child: commonText(cat.name, size: 14.0),
+                            );
+                          }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedCategoryId = newValue;
+                        });
+                      },
                     ),
                   ),
+                ),
             const SizedBox(height: 20),
 
             // Start Date Picker
@@ -141,19 +176,28 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
             GestureDetector(
               onTap: () => _pickStartDate(ritualState),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 15.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 15.0,
+                ),
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.green, width: 1.0),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_month_outlined, color: AppColors.green, size: 16.0),
+                    const Icon(
+                      Icons.calendar_month_outlined,
+                      color: AppColors.green,
+                      size: 16.0,
+                    ),
                     const SizedBox(width: 10),
                     commonText(
                       selectedStartDate == null
                           ? "Select Start Date"
-                          : DateFormat("dd - MM - yyyy").format(selectedStartDate!),
+                          : DateFormat(
+                            "dd - MM - yyyy",
+                          ).format(selectedStartDate!),
                       size: 14.0,
                     ),
                   ],
@@ -169,7 +213,7 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
               durationController,
               prrfixIcon: const Icon(Icons.watch_later_outlined),
               hintText: "Enter duration in min",
-              keyboardType: TextInputType.number
+              keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 40),
 

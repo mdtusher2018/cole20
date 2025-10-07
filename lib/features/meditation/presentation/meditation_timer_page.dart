@@ -1,25 +1,31 @@
 import 'dart:async';
 import 'package:cole20/core/colors.dart';
+import 'package:cole20/core/providers.dart';
 import 'package:cole20/features/rituals/domain/ritual_model.dart';
 import 'package:cole20/features/rituals/presentation/edit_ritual.dart';
-import 'package:cole20/features/rituals/presentation/task.dart';
+
 import 'package:flutter/material.dart';
 import 'package:cole20/core/commonWidgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
-class MeditationTimerPage extends StatefulWidget {
+class MeditationTimerPage extends ConsumerStatefulWidget {
   final Ritual ritual;
   final int currentDay;
-  const MeditationTimerPage({super.key, required this.ritual,required this.currentDay});
+  const MeditationTimerPage({
+    super.key,
+    required this.ritual,
+    required this.currentDay,
+  });
 
   @override
   _MeditationTimerPageState createState() => _MeditationTimerPageState();
 }
-class _MeditationTimerPageState extends State<MeditationTimerPage> {
-  double progress = 0.0; 
-  Duration totalTime = Duration.zero; 
-  Duration remainingTime = Duration.zero; 
-  Duration elapsedTime = Duration.zero; 
+
+class _MeditationTimerPageState extends ConsumerState<MeditationTimerPage> {
+  double progress = 0.0;
+  Duration totalTime = Duration.zero;
+  Duration remainingTime = Duration.zero;
+  Duration elapsedTime = Duration.zero;
   Timer? timer;
   bool isPaused = false;
   bool isCountdown = true; // Flag to decide count direction
@@ -101,40 +107,86 @@ class _MeditationTimerPageState extends State<MeditationTimerPage> {
     super.dispose();
   }
 
+  Future<void> _completeRitual() async {
+    final notifier = ref.read(
+      homePageNotifierProvider(widget.currentDay).notifier,
+    );
+    final result= await notifier.completeRitual(widget.ritual.id);
+
+    final state = ref.read(homePageNotifierProvider(widget.currentDay));
+    if (result) {
+      Navigator.popUntil(context, (route) => route.isFirst);
+      // showSnackBar(
+      //   context: context,
+      //   title: "Success",
+      //   message: state.successMessage!,
+      //   backgroundColor: Colors.green
+      // );
+          await showLottieDialog(
+      context: context,
+    );
+    } else {
+      showSnackBar(
+        context: context,
+        title: "Error",
+        message: state.errorMessage!,
+      );
+    }
+  }
+
+  Future<void> _deleteRitual() async {
+    final notifier = ref.read(
+      homePageNotifierProvider(widget.currentDay).notifier,
+    );
+    final result = await notifier.deleteRitual(widget.ritual.id);
+
+    final state = ref.read(homePageNotifierProvider(widget.currentDay));
+    if (result) {
+      Navigator.popUntil(context, (route) => route.isFirst);
+      showSnackBar(
+        context: context,
+        title: "Success",
+        message: state.successMessage!,
+        backgroundColor: Colors.green,
+      );
+    }else{
+            Navigator.popUntil(context, (route) => route.isFirst);
+      showSnackBar(
+        context: context,
+        title: "Error",
+        message: state.errorMessage!,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final displayTime = isCountdown ? remainingTime : elapsedTime;
-
     return Scaffold(
       appBar: AppBar(
-  
         backgroundColor: Colors.white,
         leading: InkWell(
           onTap: () => Navigator.pop(context),
           child: const Icon(Icons.arrow_back, color: Colors.black),
         ),
-  
 
-      actions: [
+        actions: [
           PopupMenuButton<String>(
             iconColor: Colors.black,
             onSelected: (value) {
               if (value == "Completed") {
-                slideNavigationPushAndRemoveUntil(
-                  TaskDetailScreen(),
-                  context,
-                  onlypush: true,
-                );
+                _completeRitual();
               } else if (value == "Edit") {
                 slideNavigationPushAndRemoveUntil(
-                  EditRitualScreen(ritual: widget.ritual,currentDay: widget.currentDay,),
+                  EditRitualScreen(
+                    ritual: widget.ritual,
+                    currentDay: widget.currentDay,
+                  ),
                   context,
                   onlypush: true,
                 );
               } else if (value == "Delete") {
-                showDeleteTaskDialog(context, () {
-                  Navigator.popUntil(context, (route) => route.isFirst);
-                });
+                showDeleteTaskDialog(context, _deleteRitual);
               }
             },
             itemBuilder: (BuildContext context) {
@@ -147,12 +199,17 @@ class _MeditationTimerPageState extends State<MeditationTimerPage> {
             },
           ),
         ],
-
       ),
       body: Column(
         children: [
-                    commonText((widget.ritual.duration!=null)?"Meditation (${widget.ritual.duration} Min)":"Workout", size: 20, isBold: true),
-       
+          commonText(
+            (widget.ritual.duration != null)
+                ? "Meditation (${widget.ritual.duration} Min)"
+                : "Workout",
+            size: 20,
+            isBold: true,
+          ),
+
           const SizedBox(height: 40),
           Stack(
             alignment: Alignment.center,
@@ -171,8 +228,10 @@ class _MeditationTimerPageState extends State<MeditationTimerPage> {
             children: [
               GestureDetector(
                 onTap: () {
-                  if (isPaused) resumeTimer();
-                  else pauseTimer();
+                  if (isPaused)
+                    resumeTimer();
+                  else
+                    pauseTimer();
                 },
                 child: Container(
                   padding: const EdgeInsets.all(12),
@@ -180,7 +239,10 @@ class _MeditationTimerPageState extends State<MeditationTimerPage> {
                     border: Border.all(width: 2),
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: Icon(isPaused ? Icons.play_arrow : Icons.pause, size: 24),
+                  child: Icon(
+                    isPaused ? Icons.play_arrow : Icons.pause,
+                    size: 24,
+                  ),
                 ),
               ),
               const SizedBox(width: 40),
@@ -195,54 +257,52 @@ class _MeditationTimerPageState extends State<MeditationTimerPage> {
     );
   }
 
-Future<void> showDeleteTaskDialog(
-  BuildContext context,
-  VoidCallback onDelete,
-) async {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: commonText("Do you want to delete this Ritual?", size: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: commonButton(
-                  "Cancel",
-                  color: Colors.grey.shade300,
-                  textColor: Colors.black,
-                  height: 40,
-                  width: 100,
-                  onTap: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: commonButton(
-                  "Delete",
-                  color: AppColors.goldShades[600]!,
-                  textColor: Colors.white,
-                  height: 40,
-                  width: 100,
-                  onTap: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                    onDelete(); // Perform the delete action
-                  },
-                ),
-              ),
-            ],
+  Future<void> showDeleteTaskDialog(
+    BuildContext context,
+    VoidCallback onDelete,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: commonText("Do you want to delete this Ritual?", size: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ],
-      );
-    },
-  );
-}
-
-
-
-
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: commonButton(
+                    "Cancel",
+                    color: Colors.grey.shade300,
+                    textColor: Colors.black,
+                    height: 40,
+                    width: 100,
+                    onTap: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: commonButton(
+                    "Delete",
+                    color: AppColors.goldShades[600]!,
+                    textColor: Colors.white,
+                    height: 40,
+                    width: 100,
+                    onTap: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                      onDelete(); // Perform the delete action
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

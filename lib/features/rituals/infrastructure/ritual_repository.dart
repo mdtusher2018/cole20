@@ -1,12 +1,12 @@
 import 'package:cole20/core/api/i_api_service.dart';
 import 'package:cole20/core/apiEndPoints.dart';
-import 'package:cole20/features/rituals/domain/add_ritual_response.dart';
+import 'package:cole20/features/rituals/domain/response/add_ritual_response.dart';
 import 'package:cole20/features/rituals/domain/category_name_model.dart';
-import 'package:cole20/features/rituals/domain/category_name_response.dart';
-import 'package:cole20/features/rituals/domain/current_day_response.dart';
+import 'package:cole20/features/rituals/domain/response/category_name_response.dart';
+import 'package:cole20/features/rituals/domain/response/current_day_response.dart';
 import 'package:cole20/features/rituals/domain/ritual_model.dart';
-import 'package:cole20/features/rituals/domain/ritual_response.dart';
-import '../domain/i_ritual_repository.dart';
+import 'package:cole20/features/rituals/domain/response/ritual_response.dart';
+import '../domain/repository/i_ritual_repository.dart';
 import '../domain/ritual_category_model.dart';
 
 class RitualRepository implements IRitualRepository {
@@ -69,24 +69,24 @@ class RitualRepository implements IRitualRepository {
   }
   
 @override
-Future<String> completeRitual(String ritualId) async {
+Future<(String,int)> completeRitual(String ritualId) async {
   try {
     final response = await _apiService.post(ApiEndpoints.completeRitual(ritualId), {});
     // Assuming API returns something like { "success": true, "message": "Ritual completed" }
-    return response['message'] ?? 'Ritual completed successfully';
+    return (response['message'] as String,response['statusCode']as int);
   } catch (e) {
-    return 'Failed to complete ritual: $e';
+    return ('Failed to complete ritual: $e',500);
   }
 }
 
 @override
-Future<String> deleteRitual(String ritualId) async {
+Future<(String,int)> deleteRitual(String ritualId) async {
   try {
     final response = await _apiService.delete(ApiEndpoints.deleteRitual(ritualId));
     // Assuming API returns something like { "success": true, "message": "Ritual deleted" }
-    return response['message'] ?? 'Ritual deleted successfully';
+    return (response['message'] as String,response['statusCode']as int);
   } catch (e) {
-    return 'Failed to delete ritual: $e';
+    return ('Failed to delete ritual: $e',500);
   }
 }
 

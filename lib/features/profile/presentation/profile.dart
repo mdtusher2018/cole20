@@ -122,23 +122,13 @@ class ProfileScreen extends ConsumerWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  _buildStatCard(
-                                    "10",
-                                    "Mental",
-                                    AppColors.berry,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  _buildStatCard(
-                                    "10",
-                                    "Physical",
-                                    AppColors.green,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  _buildStatCard(
-                                    "10",
-                                    "Spiritual",
-                                    AppColors.gold,
-                                  ),
+                                  ...state.ritualProgress.map((category) {
+                                    return _buildStatCard(
+                                      category.completedRituals.toString(),
+                                      category.categoryName,
+                                      hexToColor(category.colorCode),
+                                    );
+                                  }).toList(),
                                 ],
                               ),
                             ],
