@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cole20/features/home/presentation/calender.dart';
+import 'package:cole20/features/rituals/presentation/calender.dart';
 import 'package:cole20/core/colors.dart';
-import 'package:cole20/features/home/presentation/home_page.dart';
+import 'package:cole20/features/rituals/presentation/home_page.dart';
 import 'package:cole20/features/profile/presentation/profile.dart';
-import 'package:cole20/features/task/presentation/root_task.dart';
+import 'package:cole20/features/rituals/presentation/root_task.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});

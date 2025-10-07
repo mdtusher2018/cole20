@@ -1,60 +1,88 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 import 'package:cole20/core/colors.dart';
+import 'package:cole20/features/rituals/domain/ritual_model.dart';
+import 'package:cole20/features/rituals/presentation/edit_ritual.dart';
+import 'package:cole20/features/rituals/presentation/task.dart';
+import 'package:flutter/material.dart';
 import 'package:cole20/core/commonWidgets.dart';
-import 'package:cole20/features/task/presentation/edit_task.dart';
-import 'package:cole20/features/task/presentation/task.dart';
+
 
 class MeditationTimerPage extends StatefulWidget {
+  final Ritual ritual;
+  final int currentDay;
+  const MeditationTimerPage({super.key, required this.ritual,required this.currentDay});
+
   @override
   _MeditationTimerPageState createState() => _MeditationTimerPageState();
 }
-
 class _MeditationTimerPageState extends State<MeditationTimerPage> {
-  double progress = 1.0; // Full progress (100%)
-  Duration totalTime = Duration(minutes: 1); // Total meditation time
-  Duration remainingTime = Duration(minutes: 1); // Remaining time
+  double progress = 0.0; 
+  Duration totalTime = Duration.zero; 
+  Duration remainingTime = Duration.zero; 
+  Duration elapsedTime = Duration.zero; 
   Timer? timer;
   bool isPaused = false;
+  bool isCountdown = true; // Flag to decide count direction
 
   @override
   void initState() {
     super.initState();
+
+    if (widget.ritual.duration != null) {
+      // Countdown mode
+      totalTime = Duration(minutes: widget.ritual.duration!);
+      remainingTime = totalTime;
+      isCountdown = true;
+      progress = 1.0;
+    } else {
+      // Count-up mode
+      elapsedTime = Duration.zero;
+      isCountdown = false;
+      progress = 0.0;
+    }
+
     startTimer();
   }
 
   void startTimer() {
-    timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
-      if (!isPaused && remainingTime > Duration.zero) {
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      if (!isPaused) {
         setState(() {
-          remainingTime -= Duration(seconds: 1);
-          progress = remainingTime.inSeconds / totalTime.inSeconds;
+          if (isCountdown) {
+            if (remainingTime > Duration.zero) {
+              remainingTime -= const Duration(seconds: 1);
+              progress = remainingTime.inSeconds / totalTime.inSeconds;
+            } else {
+              t.cancel();
+            }
+          } else {
+            // Count up
+            elapsedTime += const Duration(seconds: 1);
+            progress = 1; // Example: progress as fraction of 1 hour
+          }
         });
-      } else {
-        t.cancel();
       }
     });
   }
 
   void pauseTimer() {
-    setState(() {
-      isPaused = true;
-      startTimer();
-    });
+    setState(() => isPaused = true);
   }
 
   void resumeTimer() {
-    setState(() {
-      isPaused = false;
-      startTimer();
-    });
+    setState(() => isPaused = false);
   }
 
   void resetTimer() {
     timer?.cancel();
     setState(() {
-      remainingTime = totalTime;
-      progress = 1.0;
+      if (isCountdown) {
+        remainingTime = totalTime;
+        progress = 1.0;
+      } else {
+        elapsedTime = Duration.zero;
+        progress = 0.0;
+      }
       isPaused = false;
     });
     startTimer();
@@ -75,32 +103,38 @@ class _MeditationTimerPageState extends State<MeditationTimerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final displayTime = isCountdown ? remainingTime : elapsedTime;
+
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
+  
         backgroundColor: Colors.white,
         leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(Icons.arrow_back, color: Colors.black)),
-        actions: [
+          onTap: () => Navigator.pop(context),
+          child: const Icon(Icons.arrow_back, color: Colors.black),
+        ),
+  
+
+      actions: [
           PopupMenuButton<String>(
             iconColor: Colors.black,
             onSelected: (value) {
               if (value == "Completed") {
-                slideNavigationPushAndRemoveUntil(TaskDetailScreen(), context,
-                    onlypush: true);
-              } else if (value == "Edit") {
-                slideNavigationPushAndRemoveUntil(EditTaskScreen(), context,
-                    onlypush: true);
-              } else if (value == "Delete") {
-                showDeleteTaskDialog(
+                slideNavigationPushAndRemoveUntil(
+                  TaskDetailScreen(),
                   context,
-                  () {
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                  },
+                  onlypush: true,
                 );
+              } else if (value == "Edit") {
+                slideNavigationPushAndRemoveUntil(
+                  EditRitualScreen(ritual: widget.ritual,currentDay: widget.currentDay,),
+                  context,
+                  onlypush: true,
+                );
+              } else if (value == "Delete") {
+                showDeleteTaskDialog(context, () {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                });
               }
             },
             itemBuilder: (BuildContext context) {
@@ -113,55 +147,45 @@ class _MeditationTimerPageState extends State<MeditationTimerPage> {
             },
           ),
         ],
+
       ),
       body: Column(
         children: [
-          commonText("Meditation (10 Min)", size: 20, isBold: true),
-          SizedBox(height: 40),
+                    commonText((widget.ritual.duration!=null)?"Meditation (${widget.ritual.duration} Min)":"Workout", size: 20, isBold: true),
+       
+          const SizedBox(height: 40),
           Stack(
             alignment: Alignment.center,
             children: [
               SizedBox(
-                  width: 200,
-                  height: 200,
-                  child: RoundedCapProgressIndicator(progress: progress)),
-              //   CircularProgressIndicator(
-              //     value: progress,
-              //     strokeWidth: 20,
-              //     backgroundColor: Colors.grey,
-              //     valueColor: AlwaysStoppedAnimation<Color>(AppColors.green),
-              //   ),
-              // ),
-              commonText(formatTime(remainingTime), size: 24, isBold: true),
+                width: 200,
+                height: 200,
+                child: RoundedCapProgressIndicator(progress: progress),
+              ),
+              commonText(formatTime(displayTime), size: 24, isBold: true),
             ],
           ),
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
                 onTap: () {
-                  if (isPaused) {
-                    resumeTimer();
-                  } else {
-                    pauseTimer();
-                  }
+                  if (isPaused) resumeTimer();
+                  else pauseTimer();
                 },
                 child: Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     border: Border.all(width: 2),
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: Icon(
-                    isPaused ? Icons.play_arrow : Icons.pause,
-                    size: 24,
-                  ),
+                  child: Icon(isPaused ? Icons.play_arrow : Icons.pause, size: 24),
                 ),
               ),
-              SizedBox(width: 40),
+              const SizedBox(width: 40),
               IconButton(
-                icon: Icon(Icons.refresh, size: 36),
+                icon: const Icon(Icons.refresh, size: 36),
                 onPressed: resetTimer,
               ),
             ],
@@ -170,18 +194,17 @@ class _MeditationTimerPageState extends State<MeditationTimerPage> {
       ),
     );
   }
-}
 
 Future<void> showDeleteTaskDialog(
-    BuildContext context, VoidCallback onDelete) async {
+  BuildContext context,
+  VoidCallback onDelete,
+) async {
   showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
         title: commonText("Do you want to delete this Ritual?", size: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           Row(
             children: [
@@ -197,9 +220,7 @@ Future<void> showDeleteTaskDialog(
                   },
                 ),
               ),
-              SizedBox(
-                width: 10,
-              ),
+              SizedBox(width: 10),
               Expanded(
                 child: commonButton(
                   "Delete",
@@ -219,4 +240,9 @@ Future<void> showDeleteTaskDialog(
       );
     },
   );
+}
+
+
+
+
 }

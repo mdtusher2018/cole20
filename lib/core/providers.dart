@@ -1,8 +1,8 @@
 import 'package:cole20/features/auth/domain/repository/i_auth_repository.dart';
-import 'package:cole20/features/home/application/homepage_notifier.dart';
-import 'package:cole20/features/home/application/homepage_state.dart';
-import 'package:cole20/features/home/domain/i_ritual_repository.dart';
-import 'package:cole20/features/home/infrastructure/ritual_repository.dart';
+import 'package:cole20/features/rituals/application/homepage_notifier.dart';
+import 'package:cole20/features/rituals/application/homepage_state.dart';
+import 'package:cole20/features/rituals/domain/i_ritual_repository.dart';
+import 'package:cole20/features/rituals/infrastructure/ritual_repository.dart';
 import 'package:cole20/features/profile/application/profile_notifier.dart';
 import 'package:cole20/features/profile/application/profile_state.dart';
 import 'package:cole20/features/profile/domain/repository/i_profile_repository.dart';
@@ -67,7 +67,7 @@ final profileNotifierProvider =
 
 final ritualRepositoryProvider = Provider.family<IRitualRepository, int>((ref, day) {
   final api = ref.read(apiServiceProvider);
-  return HomeRepository(api);
+  return RitualRepository(api);
 });
 
 final homePageNotifierProvider =

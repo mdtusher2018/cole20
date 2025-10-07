@@ -1,4 +1,4 @@
-import 'package:cole20/features/home/domain/ritual_category_model.dart';
+import 'package:cole20/features/rituals/domain/ritual_category_model.dart';
 
 class RitualsResponse {
   final bool success;

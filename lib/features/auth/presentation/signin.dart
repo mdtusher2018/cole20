@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cole20/core/assets.dart';
 import 'package:cole20/core/colors.dart';
 import 'package:cole20/features/auth/presentation/forget_pass.dart';
-import 'package:cole20/features/home/presentation/root_page.dart';
+import 'package:cole20/features/rituals/presentation/root_page.dart';
 import 'package:cole20/features/auth/presentation/signup.dart';
 import 'package:cole20/core/commonWidgets.dart';
 import 'package:cole20/core/providers.dart';

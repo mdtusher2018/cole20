@@ -6,7 +6,7 @@ import 'package:cole20/core/colors.dart';
 import 'package:cole20/core/commonWidgets.dart';
 import 'package:cole20/features/meditation/presentation/meditation_timer_page.dart';
 import 'package:cole20/features/meditation/presentation/share_story.dart';
-import 'package:cole20/features/home/presentation/root_page.dart';
+import 'package:cole20/features/rituals/presentation/root_page.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -41,32 +41,19 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // 🔹 If static index is not yet set, fetch current day from API
-      if (CalendarScreen.selectedIndex == null) {
-        final notifier = ref.read(homePageNotifierProvider(0).notifier);
-        final today = await notifier.fetchCurrentDay() ?? 0;
-
-        if (today != 0) {
-          setState(() {
-            CalendarScreen.selectedIndex =
-                today - 1; // adjust for zero-based index
-          });
-
-          // 🔹 Now fetch rituals for that day
-          await notifier.fetchRituals(day: today);
-        }
-      } else {
-        // 🔹 Already has a selected index -> fetch rituals directly
-        ref
-            .read(
-              homePageNotifierProvider(
-                (CalendarScreen.selectedIndex ?? 0) + 1,
-              ).notifier,
-            )
-            .fetchRituals(day: (CalendarScreen.selectedIndex ?? 0) + 1);
-      }
-    });
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    if (CalendarScreen.selectedIndex == null) {
+      final initialNotifier = ref.read(homePageNotifierProvider(1).notifier);
+      final today = await initialNotifier.fetchCurrentDay() ?? 1;
+      CalendarScreen.selectedIndex = today - 1;
+      ref.invalidate(homePageNotifierProvider(today));
+      await ref.read(homePageNotifierProvider(today).notifier).fetchRituals(day: today);
+    } else {
+      final day = (CalendarScreen.selectedIndex ?? 0) + 1;
+      ref.invalidate(homePageNotifierProvider(day));
+      await ref.read(homePageNotifierProvider(day).notifier).fetchRituals(day: day);
+    }
+  });
   }
 
   @override
@@ -215,7 +202,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                             color,
                                             () {
                                               slideNavigationPushAndRemoveUntil(
-                                                MeditationTimerPage(),
+                                                MeditationTimerPage(ritual: ritual,currentDay: ritualState.today,),
                                                 onlypush: true,
                                                 context,
                                               );

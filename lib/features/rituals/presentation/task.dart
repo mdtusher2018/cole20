@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:cole20/core/colors.dart';
 import 'package:cole20/core/commonWidgets.dart';
 
-class EditTaskScreen extends StatelessWidget {
+class TaskDetailScreen extends StatelessWidget {
   final TextEditingController titleController =
       TextEditingController(text: "50 Push-ups");
   final TextEditingController durationController =
@@ -12,21 +12,48 @@ class EditTaskScreen extends StatelessWidget {
   final DateTime startDate = DateTime(2024, 12, 12);
   final DateTime endDate = DateTime(2024, 12, 12);
 
-  EditTaskScreen({super.key});
+  TaskDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         leading: InkWell(
             onTap: () {
               Navigator.pop(context);
             },
             child: Icon(Icons.arrow_back, color: Colors.black)),
-        elevation: 0,
-        title: commonText("Edit Ritual", size: 20.0, isBold: true),
         centerTitle: true,
+        title: commonText("50 Push-ups", size: 20.0, isBold: true),
+        actions: [
+          PopupMenuButton<String>(
+            iconColor: Colors.black,
+            onSelected: (value) {
+              if (value == "Completed") {
+                Navigator.popUntil(context, (route) => route.isFirst);
+              } else if (value == "Edit") {
+                // slideNavigationPushAndRemoveUntil(EditRitualScreen(ritual: ,currentDay: ,), context,
+                //     onlypush: true);
+              } else if (value == "Delete") {
+                showDeleteTaskDialog(
+                  context,
+                  () {
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  },
+                );
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return {'Completed', 'Edit', 'Delete'}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Center(child: commonText(choice)),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
@@ -161,11 +188,59 @@ class EditTaskScreen extends StatelessWidget {
               prrfixIcon: Icon(Icons.watch_later_outlined),
               hintText: "Enter duration",
             ),
-            const SizedBox(height: 40),
-            commonButton("Save Ritual")
+            const SizedBox(height: 20),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> showDeleteTaskDialog(
+      BuildContext context, VoidCallback onDelete) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: commonText("Do you want to delete this task?", size: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: commonButton(
+                    "Cancel",
+                    color: Colors.grey.shade300,
+                    textColor: Colors.black,
+                    height: 40,
+                    width: 100,
+                    onTap: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: commonButton(
+                    "Delete",
+                    color: AppColors.goldShades[600]!,
+                    textColor: Colors.white,
+                    height: 40,
+                    width: 100,
+                    onTap: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                      onDelete(); // Perform the delete action
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

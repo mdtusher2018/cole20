@@ -5,7 +5,7 @@ import 'package:cole20/features/auth/application/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:cole20/core/assets.dart';
 import 'package:cole20/core/colors.dart';
-import 'package:cole20/features/home/presentation/root_page.dart';
+import 'package:cole20/features/rituals/presentation/root_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:image_picker/image_picker.dart';

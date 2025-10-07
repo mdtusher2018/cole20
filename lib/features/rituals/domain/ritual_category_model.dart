@@ -34,8 +34,11 @@ class RitualCategory {
       totalRitual: json['totalRitual'],
       completeRitual: json['completeRitual'],
       rituals: (json['rituals'] as List)
-          .map((r) => Ritual.fromJson(r))
-          .toList(),
-    );
+        .map((r) {
+          final ritual = Ritual.fromJson(r);
+          return ritual.copyWith(categoryId: json['_id']);
+        })
+        .toList(),
+  );
   }
 }
