@@ -32,4 +32,11 @@ abstract class IAuthRepository {
      String gender,
      File? image
   );
+
+
+  Future<SignInResponse> googleSignin(String token);
+  Future<SignInResponse> facebookSignin(String token);
+
+
 }
+

@@ -28,9 +28,6 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<void> signout() async {}
-
-  @override
   Future<SignupResponse> signup(
     String email,
     String password,
@@ -91,5 +88,23 @@ class AuthRepository implements IAuthRepository {
     );
 
     return CompleteProfileResponse.fromJson(res);
+  }
+
+  @override
+  Future<SignInResponse> facebookSignin(String token) {
+    // TODO: implement facebookSignin
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<SignInResponse> googleSignin(String token) async {
+    final res = await _api.post(ApiEndpoints.googleSignin, {"accessToken": token});
+  
+    return SignInResponse.fromJson(res['data']);
+  }
+  
+  @override
+  Future<void> signout() async{
+    
   }
 }

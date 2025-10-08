@@ -1,4 +1,5 @@
 import 'package:cole20/core/providers.dart';
+import 'package:cole20/features/auth/presentation/signin.dart';
 import 'package:cole20/features/profile/application/profile_state.dart';
 import 'package:cole20/utils/helpers.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,6 @@ import 'package:cole20/core/commonWidgets.dart';
 import 'package:cole20/core/colors.dart';
 import 'package:cole20/features/profile/presentation/edit_profile.dart';
 import 'package:cole20/features/profile/presentation/settings.dart';
-import 'package:cole20/features/auth/presentation/signin.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -15,7 +15,6 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileState = ref.watch(profileNotifierProvider);
-    // final profileNotifier = ref.read(profileNotifierProvider.notifier);
 
     ref.listenManual(profileNotifierProvider, (previous, next) {});
 
@@ -196,13 +195,13 @@ class ProfileScreen extends ConsumerWidget {
                           title: "Logout",
                           onTap: () {
                             showLogoutDialog(context, () async {
-                              await ref.read(localStorageProvider).clearAll();
-                              clearAllProviders(ref);
-                              
                               slideNavigationPushAndRemoveUntil(
                                 SignInScreen(),
                                 context,
                               );
+                              await ref
+                                  .read(authNotifierProvider.notifier)
+                                  .signout(ref);
                             });
                           },
                         ),

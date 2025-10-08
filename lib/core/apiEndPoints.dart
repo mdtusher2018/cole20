@@ -12,6 +12,8 @@ class ApiEndpoints {
   static const String baseImageUrl = 'http://10.10.10.31:7720';
 
   static String signin = "auth/login";
+  static String googleSignin = "auth/google-login";
+  static String facebookSignin = "auth/facebook-login";
 
   static String signup = "users/signup";
 

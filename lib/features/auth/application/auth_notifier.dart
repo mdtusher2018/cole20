@@ -6,26 +6,23 @@ import 'package:cole20/core/localstorage/i_local_storage_service.dart';
 import 'package:cole20/core/localstorage/session_memory.dart';
 import 'package:cole20/core/localstorage/storage_key.dart';
 import 'package:cole20/features/auth/domain/repository/i_auth_repository.dart';
+import 'package:cole20/features/rituals/presentation/root_page.dart';
+import 'package:cole20/utils/helpers.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'auth_state.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final IAuthRepository _repository;
   final ILocalStorageService _localStorage;
   final SessionMemory _sessionMemory;
-  final FirebaseAuth _firebaseAuth;
 
   Timer? _cooldownTimer;
 
-  AuthNotifier(
-    this._repository,
-    this._localStorage,
-    this._sessionMemory,
-    this._firebaseAuth,
-  ) : super(AuthState.initial());
+  AuthNotifier(this._repository, this._localStorage, this._sessionMemory)
+    : super(AuthState.initial());
 
   Future<void> signin(
     String email,
@@ -48,8 +45,26 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  void signout() {
-    state = AuthState.initial();
+  Future<bool> signout(WidgetRef ref) async {
+    try {
+      final googleSignIn = GoogleSignIn();
+      if (await googleSignIn.isSignedIn()) {
+        await googleSignIn.signOut();
+      }
+      await _localStorage.clearAll();
+      _sessionMemory.clear();
+
+      clearAllProviders(ref);
+
+      state = AuthState.initial();
+
+      return true;
+    } catch (e, stack) {
+      print("Signout error: $e");
+      print(stack);
+      state = AuthState.error(e.toString());
+      return false;
+    }
   }
 
   Future<void> signup(String email, String password, String fullName) async {
@@ -159,19 +174,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     super.dispose();
   }
 
-  
-
-
-
-
-
-
-//try new commit
-
-
-
-
-  /// Google Sign-In
   Future<void> signInWithGoogle() async {
     state = AuthState.loading();
     try {
@@ -181,30 +183,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       }
 
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
-
-      final token = await userCredential.user?.getIdToken();
-      log(googleAuth.idToken.toString());
-
-      if (token != null) {
-        // if (rememberMe) {
-        //   await _localStorage.saveString(StorageKey.token, token);
-        // } else {
-        //   _sessionMemory.setToken(token);
-        // }
-      }
-
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final response = await _repository.googleSignin(googleAuth.accessToken!);
+      await _localStorage.saveString(StorageKey.token, response.accessToken);
       state = AuthState.authenticated();
     } catch (e) {
-            log(e.toString());
+      log(e.toString());
       state = AuthState.error(e.toString());
     }
   }
@@ -220,28 +205,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
         return;
       }
 
-      final OAuthCredential facebookCredential =
-          FacebookAuthProvider.credential(result.accessToken!.tokenString);
-
-      final userCredential = await _firebaseAuth.signInWithCredential(facebookCredential);
-
-      final token = await userCredential.user?.getIdToken();
-
-      if (token != null) {
-        if (rememberMe) {
-          await _localStorage.saveString(StorageKey.token, token);
-        } else {
-          _sessionMemory.setToken(token);
-        }
-      }
-
       state = AuthState.authenticated();
     } catch (e) {
       log("googleUser".toString());
       state = AuthState.error(e.toString());
     }
   }
-
 }
 
 

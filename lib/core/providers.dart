@@ -63,13 +63,13 @@ final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((
   final repository = ref.read(authRepositoryProvider);
   final localStorage = ref.read(localStorageProvider);
   final sessionMemory = ref.read(sessionMemoryProvider);
-  final firebaseAuth = ref.read(firebaseAuthProvider); // Inject here
-  return AuthNotifier(repository, localStorage, sessionMemory, firebaseAuth);
+  
+  return AuthNotifier(repository, localStorage, sessionMemory);
 });
 
 // profile repository provider
 final profileRepositoryProvider = Provider<IProfileRepository>((ref) {
-  final api = ref.read(apiServiceProvider); // your IApiService provider
+  final api = ref.read(apiServiceProvider); 
   return ProfileRepository(api);
 });
 

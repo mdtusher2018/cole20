@@ -20,7 +20,7 @@ class HomepageState {
     required this.status,
     this.categories = const [],
     this.errorMessage,
-    this.today = 1,
+    this.today = 0,
     this.unreadNotification=0,
     this.successMessage,
     this.isRefreshing = false,
@@ -37,13 +37,13 @@ class HomepageState {
 
   factory HomepageState.loaded(
     List<RitualCategory> categories, {
-    int today = 1,
+    
     String? successMessage,
     bool isSubmitting = false,
   }) => HomepageState._(
     status: HomePageStatus.loaded,
     categories: categories,
-    today: today,
+    
     successMessage: successMessage,
     isSubmitting: isSubmitting,
   );

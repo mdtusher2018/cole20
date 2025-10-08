@@ -26,14 +26,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   bool rememberMe = false;
   bool isPasswordVisible = false;
 
-  void _login() async {
+  void _login({required String method}) async {
     final authNotifier = ref.read(authNotifierProvider.notifier);
 
-    await authNotifier.signin(
-      emailController.text.trim(),
-      passwordController.text.trim(),
-      rememberMe: rememberMe,
-    );
+    if (method == "email") {
+      await authNotifier.signin(
+        emailController.text.trim(),
+        passwordController.text.trim(),
+        rememberMe: rememberMe,
+      );
+    } else if (method == "google") {
+      await authNotifier.signInWithGoogle();
+    } else if (method == "facebook") {
+      await authNotifier.signInWithFacebook();
+    }
 
     final authState = ref.read(authNotifierProvider);
 
@@ -141,7 +147,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 commonButton(
                   "Sign In",
                   isLoading: authState.isLoading,
-                  onTap: _login,
+                  onTap: () => _login(method: "email"),
                 ),
                 const SizedBox(height: 20),
 
@@ -163,9 +169,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   "Sign In With Google",
                   imagePath: ImagePaths.googleIcon,
                   borderColor: AppColors.gold,
-                  onTap: () {
-                    ref.read(authNotifierProvider.notifier).signInWithGoogle();
-                  },
+                  onTap: () => _login(method: "google"),
                 ),
                 const SizedBox(height: 15),
 
@@ -173,11 +177,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   "Sign In With Facebook",
                   imagePath: ImagePaths.facebookIcon,
                   borderColor: AppColors.gold,
-                  onTap: () {
-                    ref
-                        .read(authNotifierProvider.notifier)
-                        .signInWithFacebook();
-                  },
+                 onTap: () => _login(method: "facebook"),
                 ),
 
                 const SizedBox(height: 30),
