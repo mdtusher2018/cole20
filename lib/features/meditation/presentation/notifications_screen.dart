@@ -6,7 +6,7 @@ import 'package:cole20/features/meditation/application/notification_state.dart';
 import 'package:cole20/core/providers.dart';
 
 class NotificationScreen extends ConsumerStatefulWidget {
-  const NotificationScreen({Key? key}) : super(key: key);
+  const NotificationScreen({super.key});
 
   @override
   ConsumerState<NotificationScreen> createState() => _NotificationScreenState();
@@ -116,9 +116,9 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: isHighlighted ? const Color(0xfff7E9B8C) : AppColors.white,
+        color: isHighlighted ? const Color(0xfff7e9b8c) : AppColors.white,
         border: Border.all(
-          color: isHighlighted ? const Color(0xfff7E9B8C) : Colors.transparent,
+          color: isHighlighted ? const Color(0xfff7e9b8c) : Colors.transparent,
           width: isHighlighted ? 1 : 0,
         ),
       ),

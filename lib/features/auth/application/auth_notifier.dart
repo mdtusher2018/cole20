@@ -1,26 +1,47 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cole20/core/localstorage/i_local_storage_service.dart';
+import 'package:cole20/core/localstorage/session_memory.dart';
 import 'package:cole20/core/localstorage/storage_key.dart';
 import 'package:cole20/features/auth/domain/repository/i_auth_repository.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'auth_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final IAuthRepository _repository;
-  final ILocalStorageService _localStorage; // Injected dependency
+  final ILocalStorageService _localStorage;
+  final SessionMemory _sessionMemory;
+  final FirebaseAuth _firebaseAuth;
 
   Timer? _cooldownTimer;
 
-  AuthNotifier(this._repository, this._localStorage)
-    : super(AuthState.initial());
+  AuthNotifier(
+    this._repository,
+    this._localStorage,
+    this._sessionMemory,
+    this._firebaseAuth,
+  ) : super(AuthState.initial());
 
-  Future<void> signin(String email, String password) async {
+  Future<void> signin(
+    String email,
+    String password, {
+    bool rememberMe = false,
+  }) async {
     state = AuthState.loading();
     try {
       final response = await _repository.signin(email, password);
-      await _localStorage.saveString(StorageKey.token, response.accessToken);
+      // await _localStorage.saveString(StorageKey.token, response.accessToken);
+      if (rememberMe) {
+        // Save token persistently
+        await _localStorage.saveString(StorageKey.token, response.accessToken);
+      } else {
+        _sessionMemory.setToken(response.accessToken);
+      }
       state = AuthState.authenticated();
     } catch (e) {
       state = AuthState.error(e.toString());
@@ -65,8 +86,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-
-
   Future<void> forgetPassword(String email) async {
     state = AuthState.loading();
     try {
@@ -104,49 +123,189 @@ class AuthNotifier extends StateNotifier<AuthState> {
     });
   }
 
-
-
-  Future<void> resetPassword(String password,String confirmPassword) async {
+  Future<void> resetPassword(String password, String confirmPassword) async {
     state = AuthState.loading();
     try {
-      await _repository.resetPassword(password,confirmPassword);
+      await _repository.resetPassword(password, confirmPassword);
       state = AuthState.reset();
     } catch (e) {
       state = AuthState.error(e.toString());
     }
   }
 
-
-
-
-Future<void> completeProfile({
-  required String fullName,
-  required String phone,
-  required String gender,
-  File? image,
-}) async {
-  state = AuthState.loading();
-  try {
-    final response = await _repository.completeProfile(
-       fullName,
-       phone,
-       gender,
-       image
-    );
-    state = AuthState.profileCompleted(response);
-  } catch (e) {
-    state = AuthState.error(e.toString());
+  Future<void> completeProfile({
+    required String fullName,
+    required String phone,
+    required String gender,
+    File? image,
+  }) async {
+    state = AuthState.loading();
+    try {
+      final response = await _repository.completeProfile(
+        fullName,
+        phone,
+        gender,
+        image,
+      );
+      state = AuthState.profileCompleted(response);
+    } catch (e) {
+      state = AuthState.error(e.toString());
+    }
   }
-}
-
-
-
-
-
 
   @override
   void dispose() {
     _cooldownTimer?.cancel();
     super.dispose();
   }
+
+  
+
+
+
+
+
+
+//try new commit
+
+
+
+
+  /// Google Sign-In
+  Future<void> signInWithGoogle() async {
+    state = AuthState.loading();
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        state = AuthState.error("Google sign-in cancelled");
+        return;
+      }
+
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _firebaseAuth.signInWithCredential(credential);
+
+      final token = await userCredential.user?.getIdToken();
+      log(googleAuth.idToken.toString());
+
+      if (token != null) {
+        // if (rememberMe) {
+        //   await _localStorage.saveString(StorageKey.token, token);
+        // } else {
+        //   _sessionMemory.setToken(token);
+        // }
+      }
+
+      state = AuthState.authenticated();
+    } catch (e) {
+            log(e.toString());
+      state = AuthState.error(e.toString());
+    }
+  }
+
+  /// Facebook Sign-In
+  Future<void> signInWithFacebook({bool rememberMe = false}) async {
+    state = AuthState.loading();
+    try {
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      if (result.status != LoginStatus.success) {
+        state = AuthState.error("Facebook sign-in failed");
+        return;
+      }
+
+      final OAuthCredential facebookCredential =
+          FacebookAuthProvider.credential(result.accessToken!.tokenString);
+
+      final userCredential = await _firebaseAuth.signInWithCredential(facebookCredential);
+
+      final token = await userCredential.user?.getIdToken();
+
+      if (token != null) {
+        if (rememberMe) {
+          await _localStorage.saveString(StorageKey.token, token);
+        } else {
+          _sessionMemory.setToken(token);
+        }
+      }
+
+      state = AuthState.authenticated();
+    } catch (e) {
+      log("googleUser".toString());
+      state = AuthState.error(e.toString());
+    }
+  }
+
 }
+
+
+
+
+
+
+
+
+
+ // Future<void> loginWithGoogle() async {
+  //   isLoading.value = true;
+  //   final GoogleSignIn googleSignIn = GoogleSignIn();
+  //   try {
+  //     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+  //     if (googleUser == null) return; // user canceled
+  //
+  //     var name = googleUser.displayName;
+  //     var image = googleUser.photoUrl;
+  //     var email = googleUser.email;
+  //     var role = PrefsHelper.myRole;
+  //
+  //     log(">>>>>>>>>> Name : $name");
+  //     log(">>>>>>>>>> email : $email");
+  //     log(">>>>>>>>>> image : $image");
+  //     log(">>>>>>>>>> role : $role");
+  //
+  //     var body = {
+  //       "email": email,
+  //       "name": name ,
+  //       "profileImage": image,
+  //       "role": role,
+  //     };
+  //
+  //     final response = await authRepository.loginWithGoogle(body);
+  //     if (response.statusCode == 200) {
+  //       if (response.data['user']['role'] != PrefsHelper.myRole) {
+  //         Get.snackbar(
+  //           "Access Denied",
+  //           "You're trying to log in as a ${response.data['user']['role']}, but this portal is intended for ${PrefsHelper.myRole} access.",
+  //         );
+  //         return;
+  //       }
+  //
+  //       _handleSuccessfulLogin(response);
+  //        Get.to(
+  //         LocationPermissionScreen(
+  //
+  //           parentBusiness: response.data['user']['parentBusiness'],
+  //         ),
+  //       );
+  //     } else {
+  //       Get.snackbar("Error".tr,response.message);
+  //     }
+  //   } catch (e, s) {
+  //     log("Google Sign-In Error: $e");
+  //     log("StackTrace: $s");
+  //     Get.snackbar("Google Sign-In Failed", e.toString());
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
+
+
+
+
+

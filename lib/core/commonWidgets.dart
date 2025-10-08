@@ -362,12 +362,12 @@ class RoundedCapProgressIndicator extends StatelessWidget {
   final double strokeWidth;
 
   const RoundedCapProgressIndicator({
-    Key? key,
+    super.key,
     required this.progress, // Progress must be a value between 0.0 and 1.0
     this.backgroundColor = Colors.grey,
     this.progressColor = AppColors.green,
     this.strokeWidth = 20.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

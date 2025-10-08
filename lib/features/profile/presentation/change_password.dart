@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/profile_state.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
-  const ChangePasswordScreen({Key? key}) : super(key: key);
+  const ChangePasswordScreen({super.key});
 
   @override
   ConsumerState<ChangePasswordScreen> createState() =>

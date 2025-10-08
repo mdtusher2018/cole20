@@ -10,7 +10,7 @@ import 'package:cole20/features/auth/presentation/signin.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -128,7 +128,7 @@ class ProfileScreen extends ConsumerWidget {
                                       category.categoryName,
                                       hexToColor(category.colorCode),
                                     );
-                                  }).toList(),
+                                  }),
                                 ],
                               ),
                             ],
@@ -195,10 +195,15 @@ class ProfileScreen extends ConsumerWidget {
                           ),
                           title: "Logout",
                           onTap: () {
-                            slideNavigationPushAndRemoveUntil(
-                              SignInScreen(),
-                              context,
-                            );
+                            showLogoutDialog(context, () async {
+                              await ref.read(localStorageProvider).clearAll();
+                              clearAllProviders(ref);
+                              
+                              slideNavigationPushAndRemoveUntil(
+                                SignInScreen(),
+                                context,
+                              );
+                            });
                           },
                         ),
                       ],
@@ -277,6 +282,55 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> showLogoutDialog(
+    BuildContext context,
+    VoidCallback onLogout,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: commonText("Do you want to Logout?", size: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: commonButton(
+                    "Cancel",
+                    color: Colors.grey.shade300,
+                    textColor: Colors.black,
+                    height: 40,
+                    width: 100,
+                    onTap: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: commonButton(
+                    "Logout",
+                    color: AppColors.goldShades[600]!,
+                    textColor: Colors.white,
+                    height: 40,
+                    width: 100,
+                    onTap: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                      onLogout(); // Perform the delete action
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

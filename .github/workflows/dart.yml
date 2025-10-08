@@ -65,10 +65,10 @@ jobs:
       - name: Build APK
         run: flutter build apk --release --build-name=1.0.0
 
-      - name: Upload APK as artifact
-        uses: zsfVishnu/apk-metric-upload@v1.0.0
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
-          name: my-flutter-apk
+          name: release-flutter-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
         

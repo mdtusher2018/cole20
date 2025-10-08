@@ -10,7 +10,7 @@ import 'package:cole20/features/rituals/presentation/add_ritual.dart';
 import 'package:cole20/features/meditation/presentation/meditation_timer_page.dart';
 
 class RootTaskScreen extends ConsumerStatefulWidget {
-  const RootTaskScreen({Key? key}) : super(key: key);
+  const RootTaskScreen({super.key});
 
   @override
   ConsumerState<RootTaskScreen> createState() => _RootTaskScreenState();

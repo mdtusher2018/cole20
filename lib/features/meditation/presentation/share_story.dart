@@ -3,6 +3,8 @@ import 'package:cole20/core/colors.dart'; // Assuming this is where you define y
 import 'package:cole20/core/commonWidgets.dart'; // Assuming this is where the commonText is defined
 
 class ShareStory extends StatelessWidget {
+  const ShareStory({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

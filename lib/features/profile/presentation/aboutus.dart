@@ -7,7 +7,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AboutScreen extends ConsumerStatefulWidget {
-  const AboutScreen({Key? key}) : super(key: key);
+  const AboutScreen({super.key});
 
   @override
   ConsumerState<AboutScreen> createState() => _AboutScreenState();

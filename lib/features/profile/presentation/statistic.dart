@@ -14,6 +14,8 @@ class StatisticsScreen extends StatelessWidget {
     "August": 88,
   };
 
+  StatisticsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

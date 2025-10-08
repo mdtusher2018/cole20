@@ -5,6 +5,8 @@ import 'package:cole20/core/commonWidgets.dart';
 class HelpScreen extends StatelessWidget {
   final TextEditingController messageController = TextEditingController();
 
+  HelpScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

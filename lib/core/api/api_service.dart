@@ -4,17 +4,30 @@ import 'dart:io';
 import 'package:cole20/core/api/i_api_service.dart';
 import 'package:cole20/core/apiEndPoints.dart';
 import 'package:cole20/core/localstorage/i_local_storage_service.dart';
+import 'package:cole20/core/localstorage/session_memory.dart';
 import 'package:cole20/core/localstorage/storage_key.dart';
 import 'api_client.dart';
 
 class ApiService implements IApiService {
   final ApiClient _client;
   final ILocalStorageService _localStorage;
+  final SessionMemory _sessionMemory;
 
-  ApiService(this._client, this._localStorage);
+  ApiService(this._client, this._localStorage,this._sessionMemory);
 
   Future<Map<String, String>> _getHeaders({Map<String, String>? extra}) async {
-    final token = await _localStorage.getString(StorageKey.token);
+
+
+  // First try getting sessional token
+  final sessionToken = _sessionMemory.token;
+
+  // If session token not found, fallback to persistent token
+  final localToken = await _localStorage.getString(StorageKey.token);
+
+  // Choose whichever is available
+  final token = sessionToken ?? localToken;
+
+    // final token = await _localStorage.getString(StorageKey.token);
     log(token.toString());
     final headers = {
       'Content-Type': 'application/json',

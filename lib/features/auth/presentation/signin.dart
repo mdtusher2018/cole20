@@ -17,8 +17,12 @@ class SignInScreen extends ConsumerStatefulWidget {
 }
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
-  final TextEditingController emailController = TextEditingController(text: "devrakibmia@gmail.com");
-  final TextEditingController passwordController = TextEditingController(text: "123456");
+  final TextEditingController emailController = TextEditingController(
+    text: "devrakibmia@gmail.com",
+  );
+  final TextEditingController passwordController = TextEditingController(
+    text: "123456",
+  );
   bool rememberMe = false;
   bool isPasswordVisible = false;
 
@@ -28,6 +32,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     await authNotifier.signin(
       emailController.text.trim(),
       passwordController.text.trim(),
+      rememberMe: rememberMe,
     );
 
     final authState = ref.read(authNotifierProvider);
@@ -35,13 +40,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     if (authState.isAuthenticated) {
       slideNavigationPushAndRemoveUntil(RootPage(), context);
     } else if (authState.hasError) {
-      showSnackBar(context: context, title: "Error", message: authState.errorMessage.toString());
+      showSnackBar(
+        context: context,
+        title: "Error",
+        message: authState.errorMessage.toString(),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final AuthState  authState = ref.watch(authNotifierProvider);
+    final AuthState authState = ref.watch(authNotifierProvider);
 
     return Scaffold(
       backgroundColor: AppColors.green,
@@ -114,7 +123,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ForgotPasswordScreen()),
+                            builder: (context) => ForgotPasswordScreen(),
+                          ),
                         );
                       },
                       child: commonText(
@@ -153,17 +163,23 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   "Sign In With Google",
                   imagePath: ImagePaths.googleIcon,
                   borderColor: AppColors.gold,
-                  onTap: () {},
+                  onTap: () {
+                    ref.read(authNotifierProvider.notifier).signInWithGoogle();
+                  },
                 ),
                 const SizedBox(height: 15),
 
-                // Sign In with Facebook
                 commonBorderButton(
                   "Sign In With Facebook",
                   imagePath: ImagePaths.facebookIcon,
                   borderColor: AppColors.gold,
-                  onTap: () {},
+                  onTap: () {
+                    ref
+                        .read(authNotifierProvider.notifier)
+                        .signInWithFacebook();
+                  },
                 ),
+
                 const SizedBox(height: 30),
 
                 // Sign Up Row
@@ -174,7 +190,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     GestureDetector(
                       onTap: () {
                         slideNavigationPushAndRemoveUntil(
-                            SignUpScreen(), context);
+                          SignUpScreen(),
+                          context,
+                        );
                       },
                       child: commonText(
                         "Sign Up",

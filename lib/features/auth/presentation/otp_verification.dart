@@ -13,6 +13,8 @@ class OtpVerificationScreen extends ConsumerWidget {
     (_) => TextEditingController(),
   );
 
+  OtpVerificationScreen({super.key});
+
   String getOTP() => otpControllers.map((e) => e.text.trim()).join();
 
   @override

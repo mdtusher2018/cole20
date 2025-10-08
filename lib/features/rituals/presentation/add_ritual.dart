@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 
 class AddRitualScreen extends ConsumerStatefulWidget {
   final int currentDay;
-  AddRitualScreen({super.key, required this.currentDay});
+  const AddRitualScreen({super.key, required this.currentDay});
 
   @override
   ConsumerState<AddRitualScreen> createState() => _AddRitualScreenState();

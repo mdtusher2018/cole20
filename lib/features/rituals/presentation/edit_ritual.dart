@@ -16,7 +16,7 @@ class EditRitualScreen extends ConsumerStatefulWidget {
   final int currentDay;
   final Ritual ritual; // The ritual to edit
 
-  EditRitualScreen({super.key, required this.currentDay, required this.ritual});
+  const EditRitualScreen({super.key, required this.currentDay, required this.ritual});
 
   @override
   ConsumerState<EditRitualScreen> createState() => _EditRitualScreenState();

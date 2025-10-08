@@ -228,10 +228,11 @@ class _MeditationTimerPageState extends ConsumerState<MeditationTimerPage> {
             children: [
               GestureDetector(
                 onTap: () {
-                  if (isPaused)
+                  if (isPaused) {
                     resumeTimer();
-                  else
+                  } else {
                     pauseTimer();
+                  }
                 },
                 child: Container(
                   padding: const EdgeInsets.all(12),
