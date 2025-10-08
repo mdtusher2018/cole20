@@ -47,7 +47,11 @@ dependencies:
   firebase_core: ^4.1.1
   firebase_auth: ^6.1.0
   google_sign_in: ^6.3.0
-  flutter_facebook_auth: ^7.1.2
+  flutter_facebook_auth: ^7.0.0
+  screenshot: ^3.0.0
+  share_plus: ^10.0.0
+  path_provider: ^2.1.5
+  file_picker: ^10.3.3
 
 dev_dependencies:
   flutter_test:

@@ -91,9 +91,10 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
-  Future<SignInResponse> facebookSignin(String token) {
-    // TODO: implement facebookSignin
-    throw UnimplementedError();
+  Future<SignInResponse> facebookSignin(String token) async{
+    final res = await _api.post(ApiEndpoints.facebookSignin, {"accessToken": token});
+  
+    return SignInResponse.fromJson(res['data']);
   }
 
   @override

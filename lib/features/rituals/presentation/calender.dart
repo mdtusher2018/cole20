@@ -1,4 +1,5 @@
 import 'package:cole20/core/providers.dart';
+import 'package:cole20/features/rituals/domain/ritual_category_model.dart';
 import 'package:cole20/utils/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -46,6 +47,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       if (CalendarScreen.selectedIndex == null) {
         final initialNotifier = ref.read(homePageNotifierProvider(1).notifier);
         final today = await initialNotifier.fetchCurrentDay() ?? 1;
+
         CalendarScreen.selectedIndex = today - 1;
         ref.invalidate(homePageNotifierProvider(today));
         await ref
@@ -80,10 +82,18 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 commonText("Today", size: 14),
                 InkWell(
                   onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (context) => createBottomSheet(context),
-                    );
+                    if ((CalendarScreen.selectedIndex ?? 0) < 45) {
+                      slideNavigationPushAndRemoveUntil(
+                        ShareStory(todayRituals: ritualState.categories,today: (CalendarScreen.selectedIndex??0)+1,),
+                        onlypush: true,
+                        context,
+                      );
+                    } else {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => createBottomSheet(context,ritualState.categories,(CalendarScreen.selectedIndex??0)+1),
+                      );
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -361,7 +371,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  Widget createBottomSheet(BuildContext context) {
+  Widget createBottomSheet(BuildContext context,List<RitualCategory> todayRituals,int today) {
     return Container(
       padding: const EdgeInsets.all(16),
       width: MediaQuery.sizeOf(context).width,
@@ -394,7 +404,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           InkWell(
             onTap: () {
               slideNavigationPushAndRemoveUntil(
-                ShareStory(),
+                ShareStory(todayRituals: todayRituals,today: today,),
                 onlypush: true,
                 context,
               );
@@ -425,5 +435,4 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
     );
   }
-
 }

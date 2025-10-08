@@ -1,3 +1,4 @@
+
 import 'package:cole20/core/localstorage/local_storage_service.dart';
 import 'package:cole20/core/localstorage/storage_key.dart';
 import 'package:cole20/core/providers.dart';
@@ -13,7 +14,17 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await LocalStorageService.init();
-  runApp(ProviderScope(child: MyApp()));
+  // runApp(ProviderScope(child: MyApp()));
+
+  // runApp(AppLifecycleHandler(child: ProviderScope(child: MyApp())));
+  runApp(
+    ProviderScope(
+      child: AppLifecycleHandler(
+        child: const MyApp(),
+      ),
+    ),
+  );
+
 }
 
 
@@ -62,3 +73,49 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
+
+
+
+/// Handles app lifecycle events (auto-logout when app closes).
+class AppLifecycleHandler extends ConsumerStatefulWidget {
+  final Widget child;
+
+  const AppLifecycleHandler({Key? key, required this.child}) : super(key: key);
+
+  @override
+  ConsumerState<AppLifecycleHandler> createState() =>
+      _AppLifecycleHandlerState();
+}
+
+class _AppLifecycleHandlerState extends ConsumerState<AppLifecycleHandler>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    // ✅ When the app is terminated or detached, auto logout
+    if (state == AppLifecycleState.detached ||
+        state == AppLifecycleState.inactive) {
+      try {
+        await ref.read(authNotifierProvider.notifier).signout(ref);
+      } catch (_) {
+        // Silently ignore errors during cleanup
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
+

@@ -6,7 +6,6 @@ import 'package:cole20/core/localstorage/i_local_storage_service.dart';
 import 'package:cole20/core/localstorage/session_memory.dart';
 import 'package:cole20/core/localstorage/storage_key.dart';
 import 'package:cole20/features/auth/domain/repository/i_auth_repository.dart';
-import 'package:cole20/features/rituals/presentation/root_page.dart';
 import 'package:cole20/utils/helpers.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,9 +31,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = AuthState.loading();
     try {
       final response = await _repository.signin(email, password);
-      // await _localStorage.saveString(StorageKey.token, response.accessToken);
+
       if (rememberMe) {
-        // Save token persistently
         await _localStorage.saveString(StorageKey.token, response.accessToken);
       } else {
         _sessionMemory.setToken(response.accessToken);
@@ -197,84 +195,28 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Facebook Sign-In
   Future<void> signInWithFacebook({bool rememberMe = false}) async {
     state = AuthState.loading();
+    log("1");
     try {
+      
       final LoginResult result = await FacebookAuth.instance.login();
+log("2");
 
       if (result.status != LoginStatus.success) {
         state = AuthState.error("Facebook sign-in failed");
         return;
       }
-
+      final response = await _repository.googleSignin(
+        result.accessToken!.tokenString,
+      );
+      await _localStorage.saveString(StorageKey.token, response.accessToken);
+      state = AuthState.authenticated();
       state = AuthState.authenticated();
     } catch (e) {
-      log("googleUser".toString());
+      log(e.toString());
       state = AuthState.error(e.toString());
     }
   }
 }
-
-
-
-
-
-
-
-
-
- // Future<void> loginWithGoogle() async {
-  //   isLoading.value = true;
-  //   final GoogleSignIn googleSignIn = GoogleSignIn();
-  //   try {
-  //     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-  //     if (googleUser == null) return; // user canceled
-  //
-  //     var name = googleUser.displayName;
-  //     var image = googleUser.photoUrl;
-  //     var email = googleUser.email;
-  //     var role = PrefsHelper.myRole;
-  //
-  //     log(">>>>>>>>>> Name : $name");
-  //     log(">>>>>>>>>> email : $email");
-  //     log(">>>>>>>>>> image : $image");
-  //     log(">>>>>>>>>> role : $role");
-  //
-  //     var body = {
-  //       "email": email,
-  //       "name": name ,
-  //       "profileImage": image,
-  //       "role": role,
-  //     };
-  //
-  //     final response = await authRepository.loginWithGoogle(body);
-  //     if (response.statusCode == 200) {
-  //       if (response.data['user']['role'] != PrefsHelper.myRole) {
-  //         Get.snackbar(
-  //           "Access Denied",
-  //           "You're trying to log in as a ${response.data['user']['role']}, but this portal is intended for ${PrefsHelper.myRole} access.",
-  //         );
-  //         return;
-  //       }
-  //
-  //       _handleSuccessfulLogin(response);
-  //        Get.to(
-  //         LocationPermissionScreen(
-  //
-  //           parentBusiness: response.data['user']['parentBusiness'],
-  //         ),
-  //       );
-  //     } else {
-  //       Get.snackbar("Error".tr,response.message);
-  //     }
-  //   } catch (e, s) {
-  //     log("Google Sign-In Error: $e");
-  //     log("StackTrace: $s");
-  //     Get.snackbar("Google Sign-In Failed", e.toString());
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
-
-
 
 
 

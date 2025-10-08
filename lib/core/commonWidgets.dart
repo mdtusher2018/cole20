@@ -10,12 +10,13 @@ Widget commonText(
   Color color = Colors.black,
   bool isBold = false,
   softwarp,
+  int maxLine=1000,
   TextAlign textAlign = TextAlign.left,
 }) {
   return Text(
     text,
     overflow: TextOverflow.ellipsis,
-    maxLines: 1000,
+    maxLines: maxLine,
     softWrap: softwarp,
     textAlign: textAlign,
     style: TextStyle(
