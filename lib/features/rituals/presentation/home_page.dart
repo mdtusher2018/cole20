@@ -125,7 +125,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     children: [
                       commonText("Today's Rituals", size: 18.0, isBold: true),
                       commonButton(
-                        "Day ${ritualState.today}",
+                        "Day ${currentDay}",
                         color: AppColors.gray,
                         textColor: AppColors.black,
                         width: 80,

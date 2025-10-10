@@ -6,7 +6,10 @@ import 'package:cole20/core/localstorage/i_local_storage_service.dart';
 import 'package:cole20/core/localstorage/session_memory.dart';
 import 'package:cole20/core/localstorage/storage_key.dart';
 import 'package:cole20/features/auth/domain/repository/i_auth_repository.dart';
+import 'package:cole20/features/rituals/presentation/root_page.dart';
+import 'package:cole20/main.dart';
 import 'package:cole20/utils/helpers.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -53,9 +56,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _sessionMemory.clear();
 
       clearAllProviders(ref);
+      RootPage.selectedIndex = 0;
 
       state = AuthState.initial();
-
+      runApp(ProviderScope(child: AppLifecycleHandler(child: const MyApp())));
       return true;
     } catch (e, stack) {
       print("Signout error: $e");
@@ -197,9 +201,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = AuthState.loading();
     log("1");
     try {
-      
       final LoginResult result = await FacebookAuth.instance.login();
-log("2");
+      log("2");
 
       if (result.status != LoginStatus.success) {
         state = AuthState.error("Facebook sign-in failed");
@@ -217,6 +220,3 @@ log("2");
     }
   }
 }
-
-
-

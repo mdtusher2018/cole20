@@ -3,7 +3,7 @@ import 'package:cole20/core/colors.dart';
 import 'package:cole20/core/commonWidgets.dart';
 import 'package:cole20/features/profile/presentation/aboutus.dart';
 import 'package:cole20/features/profile/presentation/change_password.dart';
-import 'package:cole20/features/profile/presentation/help.dart';
+// import 'package:cole20/features/profile/presentation/help.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -44,19 +44,19 @@ class SettingsScreen extends StatelessWidget {
                 },
               ),
               // Help
-              _buildSettingOption(
-                icon: "assets/images/help.png",
-                title: "Help",
-                iconColor: AppColors.green,
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return HelpScreen();
-                    },
-                  ));
-                },
-              ),
-              // About Us
+              // _buildSettingOption(
+              //   icon: "assets/images/help.png",
+              //   title: "Help",
+              //   iconColor: AppColors.green,
+              //   onTap: () {
+              //     Navigator.push(context, MaterialPageRoute(
+              //       builder: (context) {
+              //         return HelpScreen();
+              //       },
+              //     ));
+              //   },
+              // ),
+              // // About Us
               _buildSettingOption(
                 icon: "assets/images/aboutus.png",
                 title: "About Us",

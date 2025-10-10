@@ -21,7 +21,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     text: "devrakibmia@gmail.com",
   );
   final TextEditingController passwordController = TextEditingController(
-    text: "123456",
+    text: "aaaaaa",
   );
   bool rememberMe = false;
   bool isPasswordVisible = false;

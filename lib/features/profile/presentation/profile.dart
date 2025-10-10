@@ -9,11 +9,25 @@ import 'package:cole20/features/profile/presentation/edit_profile.dart';
 import 'package:cole20/features/profile/presentation/settings.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // ✅ Fetch profile when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(profileNotifierProvider.notifier).fetchProfile();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final profileState = ref.watch(profileNotifierProvider);
 
     ref.listenManual(profileNotifierProvider, (previous, next) {});
@@ -68,148 +82,149 @@ class ProfileScreen extends ConsumerWidget {
             height: MediaQuery.sizeOf(context).height * 0.8,
             child: Padding(
               padding: const EdgeInsets.only(top: 16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Profile Card
-                    state.hasError
-                        ? Center(
-                          child: commonText(
-                            state.errorMessage ?? "Something went wrong",
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        )
-                        : Container(
-                          margin: const EdgeInsets.all(16),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              commonText(
-                                name,
-                                size: 18,
-                                isBold: true,
-                                color: AppColors.green,
-                              ),
-                              const SizedBox(height: 5),
-                              commonText(
-                                email,
-                                size: 14,
-                                color: Colors.grey.shade700,
-                              ),
-                              const SizedBox(height: 15),
-
-                              // Fake Task Stats
-                              commonText(
-                                "Task Completed",
-                                size: 16,
-                                isBold: true,
-                                color: AppColors.black,
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ...state.ritualProgress.map((category) {
-                                    return _buildStatCard(
-                                      category.completedRituals.toString(),
-                                      category.categoryName,
-                                      hexToColor(category.colorCode),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ],
-                          ),
+              child: ListView(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                children: [
+                  // Profile Card
+                  state.hasError
+                      ? Center(
+                        child: commonText(
+                          state.errorMessage ?? "Something went wrong",
+                          size: 16,
+                          color: Colors.white,
                         ),
-
-                    // Menu Section
-                    Column(
-                      children: [
-                        _buildMenuItem(
-                          icon: Image.asset(
-                            "assets/images/profile.png",
-                            width: 24,
-                            color: AppColors.green,
-                          ),
-                          title: "My Profile",
-                          onTap: () {
-                            Navigator.push(
+                      )
+                      : Container(
+                        margin: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            commonText(
+                              name,
+                              size: 18,
+                              isBold: true,
+                              color: AppColors.green,
+                            ),
+                            const SizedBox(height: 5),
+                            commonText(
+                              email,
+                              size: 14,
+                              color: Colors.grey.shade700,
+                            ),
+                            const SizedBox(height: 15),
+              
+                            // Fake Task Stats
+                            commonText(
+                              "Task Completed",
+                              size: 16,
+                              isBold: true,
+                              color: AppColors.black,
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ...state.ritualProgress.map((category) {
+                                  return _buildStatCard(
+                                    category.completedRituals.toString(),
+                                    category.categoryName,
+                                    hexToColor(category.colorCode),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+              
+                  // Menu Section
+                  Column(
+                    children: [
+                      _buildMenuItem(
+                        icon: Image.asset(
+                          "assets/images/profile.png",
+                          width: 24,
+                          color: AppColors.green,
+                        ),
+                        title: "My Profile",
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditProfileScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      // _buildMenuItem(
+                      //   icon: Image.asset(
+                      //     "assets/images/Chart.png",
+                      //     width: 24,
+                      //     color: AppColors.green,
+                      //   ),
+                      //   title: "Statistic",
+                      //   onTap: () {
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //         builder: (context) => StatisticsScreen(),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
+                      _buildMenuItem(
+                        icon: Image.asset(
+                          "assets/images/Setting.png",
+                          width: 24,
+                          color: AppColors.green,
+                        ),
+                        title: "Settings",
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SettingsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 30),
+                      _buildMenuItem(
+                        icon: Image.asset(
+                          "assets/images/Logout.png",
+                          width: 24,
+                          color: AppColors.green,
+                        ),
+                        title: "Logout",
+                        onTap: () {
+                          showLogoutDialog(context, () async {
+                            slideNavigationPushAndRemoveUntil(
+                              SignInScreen(),
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => EditProfileScreen(),
-                              ),
                             );
-                          },
-                        ),
-                        // _buildMenuItem(
-                        //   icon: Image.asset(
-                        //     "assets/images/Chart.png",
-                        //     width: 24,
-                        //     color: AppColors.green,
-                        //   ),
-                        //   title: "Statistic",
-                        //   onTap: () {
-                        //     Navigator.push(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //         builder: (context) => StatisticsScreen(),
-                        //       ),
-                        //     );
-                        //   },
-                        // ),
-                        _buildMenuItem(
-                          icon: Image.asset(
-                            "assets/images/Setting.png",
-                            width: 24,
-                            color: AppColors.green,
-                          ),
-                          title: "Settings",
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SettingsScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 30),
-                        _buildMenuItem(
-                          icon: Image.asset(
-                            "assets/images/Logout.png",
-                            width: 24,
-                            color: AppColors.green,
-                          ),
-                          title: "Logout",
-                          onTap: () {
-                            showLogoutDialog(context, () async {
-                              slideNavigationPushAndRemoveUntil(
-                                SignInScreen(),
-                                context,
-                              );
-                              await ref
-                                  .read(authNotifierProvider.notifier)
-                                  .signout(ref);
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                            await ref
+                                .read(authNotifierProvider.notifier)
+                                .signout(ref);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ).withRefresh(() async{
+                  ref.read(profileNotifierProvider.notifier).fetchProfile();
+                },),
             ),
           ),
 

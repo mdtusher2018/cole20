@@ -60,7 +60,23 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             .read(homePageNotifierProvider(day).notifier)
             .fetchRituals(day: day);
       }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToSelectedDay();
+      });
     });
+  }
+
+  void _scrollToSelectedDay() {
+    if (CalendarScreen.selectedIndex != null) {
+      // Adjust item width approximation (depends on your design)
+      final itemWidth = 57.0;
+      final offset =
+          (CalendarScreen.selectedIndex! * itemWidth) -
+          (itemWidth * 2); // scroll a bit before the selected item
+      _scrollController.jumpTo(
+        offset.clamp(0.0, _scrollController.position.maxScrollExtent),
+      );
+    }
   }
 
   @override
@@ -84,14 +100,22 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   onTap: () {
                     if ((CalendarScreen.selectedIndex ?? 0) < 45) {
                       slideNavigationPushAndRemoveUntil(
-                        ShareStory(todayRituals: ritualState.categories,today: (CalendarScreen.selectedIndex??0)+1,),
+                        ShareStory(
+                          todayRituals: ritualState.categories,
+                          today: (CalendarScreen.selectedIndex ?? 0) + 1,
+                        ),
                         onlypush: true,
                         context,
                       );
                     } else {
                       showModalBottomSheet(
                         context: context,
-                        builder: (context) => createBottomSheet(context,ritualState.categories,(CalendarScreen.selectedIndex??0)+1),
+                        builder:
+                            (context) => createBottomSheet(
+                              context,
+                              ritualState.categories,
+                              (CalendarScreen.selectedIndex ?? 0) + 1,
+                            ),
                       );
                     }
                   },
@@ -247,6 +271,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   await ref
                       .read(homePageNotifierProvider(today).notifier)
                       .fetchRituals(day: today);
+                       _scrollToSelectedDay();
                 } else {
                   final day = (CalendarScreen.selectedIndex ?? 0) + 1;
                   ref.invalidate(homePageNotifierProvider(day));
@@ -254,6 +279,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       .read(homePageNotifierProvider(day).notifier)
                       .fetchRituals(day: day);
                 }
+
               }),
     );
   }
@@ -371,7 +397,11 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     );
   }
 
-  Widget createBottomSheet(BuildContext context,List<RitualCategory> todayRituals,int today) {
+  Widget createBottomSheet(
+    BuildContext context,
+    List<RitualCategory> todayRituals,
+    int today,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       width: MediaQuery.sizeOf(context).width,
@@ -404,7 +434,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           InkWell(
             onTap: () {
               slideNavigationPushAndRemoveUntil(
-                ShareStory(todayRituals: todayRituals,today: today,),
+                ShareStory(todayRituals: todayRituals, today: today),
                 onlypush: true,
                 context,
               );
