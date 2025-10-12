@@ -52,6 +52,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (await googleSignIn.isSignedIn()) {
         await googleSignIn.signOut();
       }
+      final accessToken = await FacebookAuth.instance.accessToken;
+      if (accessToken != null) {
+        await FacebookAuth.instance.logOut();
+      }
+
       await _localStorage.clearAll();
       _sessionMemory.clear();
 

@@ -8,8 +8,8 @@ class ApiEndpoints {
 
   // Local url
 
-  static const String baseUrl = 'http://10.10.10.31:7720/api/v1/';
-  static const String baseImageUrl = 'http://10.10.10.31:7720';
+  static const String baseUrl = 'https://cole-wellness-productivity.onrender.com/api/v1/';
+  static const String baseImageUrl = 'https://cole-wellness-productivity.onrender.com/';
 
   static String signin = "auth/login";
   static String googleSignin = "auth/google-login";
