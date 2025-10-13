@@ -213,7 +213,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = AuthState.error("Facebook sign-in failed");
         return;
       }
-      final response = await _repository.googleSignin(
+      final response = await _repository.facebookSignin(
         result.accessToken!.tokenString,
       );
       await _localStorage.saveString(StorageKey.token, response.accessToken);
