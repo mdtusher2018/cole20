@@ -57,7 +57,7 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
       return;
     }
 
-      final (result,massage) = await ref
+    final (result, massage) = await ref
         .read(homePageNotifierProvider(widget.currentDay).notifier)
         .addRitual(
           title: titleController.text.trim(),
@@ -84,6 +84,16 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
         message: massage.split(' - ').last,
       );
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .watch(homePageNotifierProvider(widget.currentDay).notifier)
+          .fetchCategoryName();
+    });
   }
 
   @override
@@ -117,7 +127,7 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 commonText("Category", size: 16.0),
-                if (ritualState.categories.isEmpty)
+                if (ritualState.categoryName.isEmpty)
                   InkWell(
                     onTap: () {
                       ref
