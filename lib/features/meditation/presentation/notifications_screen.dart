@@ -78,6 +78,14 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
       body:
           state.status == NotificationStatus.loading && currentPage == 1
               ? const Center(child: CircularProgressIndicator())
+              : (state.notifications.isEmpty)
+              ? Center(
+                child: commonText(
+                  "No notifications available.",
+                  size: 18,
+               
+                ),
+              )
               : RefreshIndicator(
                 onRefresh: refresh,
                 child: ListView.builder(

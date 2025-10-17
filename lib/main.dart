@@ -1,4 +1,3 @@
-
 import 'package:cole20/core/localstorage/local_storage_service.dart';
 import 'package:cole20/core/localstorage/storage_key.dart';
 import 'package:cole20/core/providers.dart';
@@ -17,16 +16,8 @@ void main() async {
   // runApp(ProviderScope(child: MyApp()));
 
   // runApp(AppLifecycleHandler(child: ProviderScope(child: MyApp())));
-  runApp(
-    ProviderScope(
-      child: AppLifecycleHandler(
-        child: const MyApp(),
-      ),
-    ),
-  );
-
+  runApp(ProviderScope(child: AppLifecycleHandler(child: const MyApp())));
 }
-
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
@@ -40,7 +31,7 @@ class MyApp extends ConsumerWidget {
 
     // ✅ Check if either token exists and not empty
     return (sessionToken != null && sessionToken.isNotEmpty) ||
-           (localToken != null && localToken.isNotEmpty);
+        (localToken != null && localToken.isNotEmpty);
   }
 
   @override
@@ -51,9 +42,7 @@ class MyApp extends ConsumerWidget {
         // Show simple loading while checking
         if (!snapshot.hasData) {
           return const MaterialApp(
-            home: Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
           );
         }
 
@@ -63,7 +52,9 @@ class MyApp extends ConsumerWidget {
           debugShowCheckedModeBanner: false,
           title: 'Cole20',
           theme: ThemeData(
-            appBarTheme: const AppBarTheme(iconTheme: IconThemeData(color: Colors.white)),
+            appBarTheme: const AppBarTheme(
+              iconTheme: IconThemeData(color: Colors.white),
+            ),
             primarySwatch: Colors.green,
             scaffoldBackgroundColor: Colors.white,
           ),
@@ -73,8 +64,6 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
-
-
 
 /// Handles app lifecycle events (auto-logout when app closes).
 class AppLifecycleHandler extends ConsumerStatefulWidget {
@@ -104,8 +93,7 @@ class _AppLifecycleHandlerState extends ConsumerState<AppLifecycleHandler>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     // ✅ When the app is terminated or detached, auto logout
-    if (state == AppLifecycleState.detached ||
-        state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.detached) {
       try {
         await ref.read(authNotifierProvider.notifier).signout(ref);
       } catch (_) {
@@ -117,5 +105,3 @@ class _AppLifecycleHandlerState extends ConsumerState<AppLifecycleHandler>
   @override
   Widget build(BuildContext context) => widget.child;
 }
-
-

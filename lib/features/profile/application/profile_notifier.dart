@@ -7,17 +7,16 @@ import 'profile_state.dart';
 class ProfileNotifier extends StateNotifier<ProfileState> {
   final IProfileRepository _repository;
 
-  ProfileNotifier(this._repository) : super(ProfileState.initial()) {
-    fetchProfile();
-  }
-
+  ProfileNotifier(this._repository) : super(ProfileState.initial());
+  
+  
   Future<void> fetchProfile() async {
     state = ProfileState.loading();
     try {
       final res = await _repository.fetchProfile();
       final progress = await _repository.fetchRitualProgress();
       state = ProfileState.loaded(res.user);
-      state = state.copyWith(ritualProgress: progress);
+      state = state.copyWith(ritualProgress: progress,errorMessage: null);
     } catch (e) {
       state = ProfileState.error(e.toString());
     }
@@ -37,7 +36,7 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         gender,
         image,
       );
-      state = ProfileState.loaded(updatedProfile.user);
+      state = ProfileState.loaded(updatedProfile.user,);
     } catch (e) {
       state = ProfileState.error(e.toString());
     }

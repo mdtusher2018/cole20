@@ -103,9 +103,5 @@ class AuthRepository implements IAuthRepository {
   
     return SignInResponse.fromJson(res['data']);
   }
-  
-  @override
-  Future<void> signout() async{
-    
-  }
+
 }

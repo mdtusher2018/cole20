@@ -57,32 +57,31 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
       return;
     }
 
-    bool result= await ref
+      final (result,massage) = await ref
         .read(homePageNotifierProvider(widget.currentDay).notifier)
         .addRitual(
           title: titleController.text.trim(),
           categoryId: selectedCategoryId!,
           startDay:
               selectedStartDate!.difference(DateTime.now()).inDays +
-              widget.currentDay 
-              ,
+              1 +
+              widget.currentDay,
           duration: int.tryParse(durationController.text),
         );
 
-
     if (result) {
       Navigator.pop(context);
-        showSnackBar(
+      showSnackBar(
         context: context,
         title: "Error",
         message: "Ritual added successfully",
-        backgroundColor: Colors.green
+        backgroundColor: Colors.green,
       );
     } else {
       showSnackBar(
         context: context,
         title: "Error",
-        message: "Faild to add ritual",
+        message: massage.split(' - ').last,
       );
     }
   }

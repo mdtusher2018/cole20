@@ -41,6 +41,7 @@ class ApiService implements IApiService {
   @override
   Future<dynamic> get(String endpoint, {Map<String, String>? extraHeaders}) async {
     final url = Uri.parse('${ApiEndpoints.baseUrl}$endpoint');
+    log(url.toString());
     final headers = await _getHeaders(extra: extraHeaders);
     return _client.get(url, headers: headers);
   }

@@ -12,7 +12,6 @@ import '../response_model/sign_in_response.dart';
 abstract class IAuthRepository {
   Future<SignInResponse> signin(String email, String password);
 
-  Future<void> signout();
 
   Future<SignupResponse> signup(String email, String password, String fullName);
 

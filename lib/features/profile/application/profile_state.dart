@@ -38,7 +38,7 @@ class ProfileState {
       profile: profile ?? this.profile,
       ritualProgress: ritualProgress ?? this.ritualProgress,
       about: about ?? this.about, // <-- new
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: this.errorMessage,
     );
   }
 
@@ -51,7 +51,7 @@ class ProfileState {
   factory ProfileState.changingPassword() =>
       const ProfileState._(status: ProfileStatus.changingPassword);
   factory ProfileState.loaded(User profile) =>
-      ProfileState._(status: ProfileStatus.loaded, profile: profile);
+      ProfileState._(status: ProfileStatus.loaded, profile: profile,errorMessage: null);
 
   factory ProfileState.error(String message) =>
       ProfileState._(status: ProfileStatus.error, errorMessage: message);

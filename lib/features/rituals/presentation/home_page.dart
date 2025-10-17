@@ -198,7 +198,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 children: [
                   Image.network(
                     getFullImagePath(category.icon),
-
+width: 32,
                     errorBuilder:
                         (context, error, stackTrace) => Icon(
                           Icons.broken_image_outlined,

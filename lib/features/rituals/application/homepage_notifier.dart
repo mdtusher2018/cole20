@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cole20/core/localstorage/i_local_storage_service.dart';
+import 'package:cole20/core/localstorage/session_memory.dart';
 import 'package:cole20/core/localstorage/storage_key.dart';
 import 'package:cole20/features/rituals/domain/repository/i_ritual_repository.dart';
 import 'package:cole20/features/rituals/domain/ritual_category_model.dart';
@@ -12,18 +13,25 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 class HomePageNotifier extends StateNotifier<HomepageState> {
   final IRitualRepository _repository;
   final ILocalStorageService _localStorageService;
+  final SessionMemory _sessionalMemory;
   final Map<int, List<RitualCategory>> _cachedRituals = {};
 
-  HomePageNotifier(this._repository, this._localStorageService)
-    : super(HomepageState.initial()) {
+  HomePageNotifier(
+    this._repository,
+    this._localStorageService,
+    this._sessionalMemory,
+  ) : super(HomepageState.initial()) {
     fetchCategoryName();
   }
 
   Future<String> fetchName() async {
-    final token = await _localStorageService.getString(StorageKey.token);
+    String? token = await _localStorageService.getString(StorageKey.token);
 
     if (token == null || token.isEmpty) {
-      return "Guest";
+      token ??= _sessionalMemory.token;
+      if (token == null || token.isEmpty) {
+        return "Guest";
+      }
     }
 
     try {
@@ -101,7 +109,7 @@ class HomePageNotifier extends StateNotifier<HomepageState> {
   }
 
   // Add a new ritual
-  Future<bool> addRitual({
+  Future<(bool,String)> addRitual({
     required String title,
     required String categoryId,
     required int startDay,
@@ -135,10 +143,10 @@ class HomePageNotifier extends StateNotifier<HomepageState> {
         isSubmitting: false,
       );
 
-      return true;
+      return (true,"Ritual added successfully");
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString(), isSubmitting: false);
-      return false;
+      return (false,e.toString());
     }
   }
 

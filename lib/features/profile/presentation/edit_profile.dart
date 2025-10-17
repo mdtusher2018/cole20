@@ -1,7 +1,9 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:cole20/core/colors.dart';
 import 'package:cole20/core/commonWidgets.dart';
 import 'package:cole20/core/providers.dart';
+import 'package:cole20/features/profile/application/profile_state.dart';
 import 'package:cole20/utils/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,9 +51,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   Future<void> pickImage() async {
     final ImagePicker picker = ImagePicker();
+    log("message");
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       ref.read(pickedImageProvider.notifier).state = File(image.path);
+      log("message1");
     }
   }
 
@@ -64,6 +68,26 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 profileState.profile!.profileImage!.isNotEmpty
             ? getFullImagePath(profileState.profile!.profileImage!)
             : "https://www.w3schools.com/howto/img_avatar.png";
+
+ref.listen<ProfileState>(profileNotifierProvider, (previous, next) {
+      if (next.errorMessage != null && next.status == ProfileStatus.error) {
+        showSnackBar(
+          context: context,
+          title: "Error",
+          message: next.errorMessage!,
+        );
+      } else if (previous?.status == ProfileStatus.updating &&
+          next.status == ProfileStatus.loaded) {
+        showSnackBar(
+          context: context,
+          title: "Success",
+          message: "Profile updated successfully",
+          backgroundColor: Colors.green,
+        );
+      }
+    });
+
+
 
     return Scaffold(
       backgroundColor: AppColors.green,

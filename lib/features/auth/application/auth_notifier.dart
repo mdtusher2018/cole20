@@ -47,6 +47,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<bool> signout(WidgetRef ref) async {
+    log("Signing out...");
     try {
       final googleSignIn = GoogleSignIn();
       if (await googleSignIn.isSignedIn()) {

@@ -63,13 +63,13 @@ final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((
   final repository = ref.read(authRepositoryProvider);
   final localStorage = ref.read(localStorageProvider);
   final sessionMemory = ref.read(sessionMemoryProvider);
-  
+
   return AuthNotifier(repository, localStorage, sessionMemory);
 });
 
 // profile repository provider
 final profileRepositoryProvider = Provider<IProfileRepository>((ref) {
-  final api = ref.read(apiServiceProvider); 
+  final api = ref.read(apiServiceProvider);
   return ProfileRepository(api);
 });
 
@@ -95,7 +95,8 @@ final homePageNotifierProvider =
     ) {
       final repo = ref.read(ritualRepositoryProvider(day));
       final localStorage = ref.read(localStorageProvider);
-      return HomePageNotifier(repo, localStorage);
+      final sessionMemory = ref.read(sessionMemoryProvider);
+      return HomePageNotifier(repo, localStorage, sessionMemory);
     });
 
 final notificationRepositoryProvider = Provider<NotificationRepository>((ref) {

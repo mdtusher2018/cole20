@@ -155,6 +155,7 @@ class ShareStory extends StatelessWidget {
                                 Image.network(
                                   getFullImagePath(category.icon),
                                   color: hexToColor(category.colorCode),
+                                  colorBlendMode: BlendMode.color,
                                   errorBuilder:
                                       (context, error, stackTrace) =>
                                           const Icon(
