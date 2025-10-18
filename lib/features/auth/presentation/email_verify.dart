@@ -33,6 +33,7 @@ class EmailVerificationScreen extends ConsumerWidget {
           context: context,
           message: "OTP resent successfully!",
           title: "Success",
+          backgroundColor: Colors.green,
         );
       } else if (next.hasError) {
         showSnackBar(
