@@ -68,11 +68,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
   void _scrollToSelectedDay() {
     if (CalendarScreen.selectedIndex != null) {
-      // Adjust item width approximation (depends on your design)
       final itemWidth = 57.0;
       final offset =
           (CalendarScreen.selectedIndex! * itemWidth) -
-          (itemWidth * 2); // scroll a bit before the selected item
+          (itemWidth * 2);
       _scrollController.jumpTo(
         offset.clamp(0.0, _scrollController.position.maxScrollExtent),
       );
@@ -239,7 +238,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                             slideNavigationPushAndRemoveUntil(
                                               MeditationTimerPage(
                                                 ritual: ritual,
-                                                currentDay: ritualState.today,
+                                                currentDay: CalendarScreen.selectedIndex??1,
                                               ),
                                               onlypush: true,
                                               context,

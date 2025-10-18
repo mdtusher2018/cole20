@@ -63,9 +63,9 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
           title: titleController.text.trim(),
           categoryId: selectedCategoryId!,
           startDay:
-              selectedStartDate!.difference(DateTime.now()).inDays +
-              1 +
-              widget.currentDay,
+              selectedStartDate!.difference(DateTime.now()).inDays+ widget.currentDay,
+              
+            
           duration: int.tryParse(durationController.text),
         );
 

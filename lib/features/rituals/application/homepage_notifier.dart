@@ -140,7 +140,7 @@ class HomePageNotifier extends StateNotifier<HomepageState> {
       state = state.copyWith(
         categories: updatedCategories,
         successMessage: "Ritual added successfully",
-        isSubmitting: false,
+        isSubmitting: false,errorMessage: null
       );
 
       return (true,"Ritual added successfully");

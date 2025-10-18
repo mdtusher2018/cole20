@@ -45,6 +45,14 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       );
       return;
     }
+    if (newPass.length < 6) {
+      showSnackBar(
+        context: context,
+        message: "New password must be at least 6 characters long",
+        title: "Error",
+      );
+      return;
+    }
 
     if (newPass != confirmPass) {
       showSnackBar(

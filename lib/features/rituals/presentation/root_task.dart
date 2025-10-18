@@ -68,7 +68,7 @@ class _RootTaskScreenState extends ConsumerState<RootTaskScreen> {
           GestureDetector(
             onTap: () {
               slideNavigationPushAndRemoveUntil(
-                AddRitualScreen(currentDay: ritualState.today),
+                AddRitualScreen(currentDay: currentDay??1),
                 onlypush: true,
                 context,
               );
@@ -148,7 +148,7 @@ class _RootTaskScreenState extends ConsumerState<RootTaskScreen> {
             color,
             () {
               slideNavigationPushAndRemoveUntil(
-                MeditationTimerPage(ritual: r, currentDay: state.today),
+                MeditationTimerPage(ritual: r, currentDay: currentDay??1),
                 onlypush: true,
                 context,
               );

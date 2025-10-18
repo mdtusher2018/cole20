@@ -50,7 +50,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    // if currentDay not yet fetched, show loader
     if (currentDay == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -245,7 +244,7 @@ width: 32,
           InkWell(
             onTap: () {
               slideNavigationPushAndRemoveUntil(
-                MeditationTimerPage(ritual: ritual, currentDay: state.today),
+                MeditationTimerPage(ritual: ritual, currentDay: currentDay??1),
                 onlypush: true,
                 context,
               );

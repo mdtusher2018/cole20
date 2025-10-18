@@ -66,7 +66,7 @@ class HomepageState {
     return HomepageState._(
       status: status ?? this.status,
       categories: categories ?? this.categories,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: this.errorMessage,
       today: today ?? this.today,
       unreadNotification: unreadNotification?? this.unreadNotification,
       successMessage: successMessage ?? this.successMessage,

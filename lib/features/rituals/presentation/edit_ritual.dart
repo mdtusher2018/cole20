@@ -85,8 +85,8 @@ class _EditRitualScreenState extends ConsumerState<EditRitualScreen> {
             categoryId: selectedCategoryId!,
             startDay:
                 selectedStartDate!.difference(DateTime.now()).inDays +
-                widget.currentDay +
-                1,
+                widget.currentDay 
+                ,
             duration: int.tryParse(durationController.text),
             createdByUser: widget.ritual.createdByUser,
             createdAt: widget.ritual.createdAt,
