@@ -5,6 +5,8 @@ class ApiException implements Exception {
 
   ApiException(this.statusCode, this.message, {this.data});
 
+//ApiException: $statusCode - 
+
   @override
-  String toString() => 'ApiException: $statusCode - $message';
+  String toString() => message;
 }
