@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:developer';
+
 import 'package:cole20/core/providers.dart';
 import 'package:cole20/features/rituals/application/homepage_state.dart';
 import 'package:cole20/features/rituals/domain/category_name_model.dart';
@@ -32,11 +34,12 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
   }
 
   Future<void> _pickStartDate(HomepageState state) async {
+    log(widget.currentDay.toString());
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 45 - state.today)),
+      lastDate: DateTime.now().add(Duration(days: 45 - widget.currentDay)),
     );
     if (pickedDate != null) {
       setState(() {

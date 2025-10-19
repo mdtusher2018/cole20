@@ -76,7 +76,7 @@ class _EditRitualScreenState extends ConsumerState<EditRitualScreen> {
       return;
     }
 
-    await ref
+   final result= await ref
         .read(homePageNotifierProvider(widget.currentDay).notifier)
         .editRitual(
           Ritual(
@@ -96,8 +96,14 @@ class _EditRitualScreenState extends ConsumerState<EditRitualScreen> {
         );
 
     // Close screen if no error
-    if (!ref.read(homePageNotifierProvider(widget.currentDay)).hasError) {
+    if (result) {
       Navigator.pop(context);
+            showSnackBar(
+        context: context,
+        title: "Success",
+        message: "Ritual updated successfully",
+        backgroundColor: Colors.green
+      );
     }
   }
 
@@ -222,6 +228,7 @@ class _EditRitualScreenState extends ConsumerState<EditRitualScreen> {
             // Update Button
             commonButton(
               "Update Ritual",
+              
               isLoading: ritualState.isSubmitting,
               onTap: () => _updateRitual(ritualState),
             ),

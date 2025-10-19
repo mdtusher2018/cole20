@@ -238,7 +238,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                             slideNavigationPushAndRemoveUntil(
                                               MeditationTimerPage(
                                                 ritual: ritual,
-                                                currentDay: CalendarScreen.selectedIndex??1,
+                                                currentDay: (CalendarScreen.selectedIndex??0)+1,
                                               ),
                                               onlypush: true,
                                               context,

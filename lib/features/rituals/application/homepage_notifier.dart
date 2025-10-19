@@ -153,6 +153,7 @@ class HomePageNotifier extends StateNotifier<HomepageState> {
   /// Edit an existing ritual
   Future<bool> editRitual(Ritual ritual) async {
     try {
+      state = state.copyWith(isSubmitting: true);
       final updatedRitual = await _repository.editRitual(ritual);
 
       final day = updatedRitual.startDay;
@@ -171,9 +172,9 @@ class HomePageNotifier extends StateNotifier<HomepageState> {
       _cachedRituals[day] = categories;
 
       if (state.today == day) {
-        state = state.copyWith(categories: categories);
+        state = state.copyWith(categories: categories,errorMessage: null);
       }
-
+state = state.copyWith(isSubmitting: false);
       return true;
     } catch (e) {
       state = HomepageState.error(e.toString());
