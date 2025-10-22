@@ -1,6 +1,6 @@
 // ignore_for_file: must_be_immutable
 
-import 'dart:developer';
+// import 'dart:developer';
 
 import 'package:cole20/core/providers.dart';
 import 'package:cole20/features/rituals/application/homepage_state.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cole20/core/colors.dart';
 import 'package:cole20/core/commonWidgets.dart';
-import 'package:intl/intl.dart';
+
 
 class AddRitualScreen extends ConsumerStatefulWidget {
   final int currentDay;
@@ -25,7 +25,8 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
 
   String? selectedCategoryId;
   DateTime? selectedStartDate;
-
+  List<int> days = List.generate(45, (index) => index + 1);
+int? selectedDay;
   @override
   void dispose() {
     titleController.dispose();
@@ -33,25 +34,25 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
     super.dispose();
   }
 
-  Future<void> _pickStartDate(HomepageState state) async {
-    log(widget.currentDay.toString());
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 45 - widget.currentDay)),
-    );
-    if (pickedDate != null) {
-      setState(() {
-        selectedStartDate = pickedDate;
-      });
-    }
-  }
+  // Future<void> _pickStartDate(HomepageState state) async {
+  //   log(widget.currentDay.toString());
+  //   final pickedDate = await showDatePicker(
+  //     context: context,
+  //     initialDate: DateTime.now(),
+  //     firstDate: DateTime.now(),
+  //     lastDate: DateTime.now().add(Duration(days: 45 - widget.currentDay)),
+  //   );
+  //   if (pickedDate != null) {
+  //     setState(() {
+  //       selectedStartDate = pickedDate;
+  //     });
+  //   }
+  // }
 
   void _createRitual(HomepageState state) async {
     if (titleController.text.isEmpty ||
         selectedCategoryId == null ||
-        selectedStartDate == null) {
+        selectedDay == null) {
       showSnackBar(
         context: context,
         title: "Empty",
@@ -65,10 +66,8 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
         .addRitual(
           title: titleController.text.trim(),
           categoryId: selectedCategoryId!,
-          startDay:
-              selectedStartDate!.difference(DateTime.now()).inDays+ widget.currentDay,
-              
-            
+          startDay:selectedDay!,
+
           duration: int.tryParse(durationController.text),
         );
 
@@ -76,7 +75,7 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
       Navigator.pop(context);
       showSnackBar(
         context: context,
-        title: "Error",
+        title: "Sucessfull",
         message: "Ritual added successfully",
         backgroundColor: Colors.green,
       );
@@ -183,39 +182,71 @@ class _AddRitualScreenState extends ConsumerState<AddRitualScreen> {
             const SizedBox(height: 20),
 
             // Start Date Picker
-            commonText("Start Date", size: 16.0),
+            commonText("Start Day", size: 16.0),
             const SizedBox(height: 5),
-            GestureDetector(
-              onTap: () => _pickStartDate(ritualState),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 15.0,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.green, width: 1.0),
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_month_outlined,
-                      color: AppColors.green,
-                      size: 16.0,
-                    ),
-                    const SizedBox(width: 10),
-                    commonText(
-                      selectedStartDate == null
-                          ? "Select Start Date"
-                          : DateFormat(
-                            "dd - MM - yyyy",
-                          ).format(selectedStartDate!),
-                      size: 14.0,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+
+        Container(
+  width: double.infinity,
+  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+  decoration: BoxDecoration(
+    border: Border.all(color: AppColors.green, width: 1.0),
+    borderRadius: BorderRadius.circular(10.0),
+  ),
+  child: DropdownButtonHideUnderline(
+    child: DropdownButton<int>(
+      hint: commonText(
+        "Select Day",
+        size: 14.0,
+        color: Colors.grey,
+      ),
+      value: selectedDay,
+      items: days.map<DropdownMenuItem<int>>((int day) {
+        return DropdownMenuItem<int>(
+          value: day,
+          child: Text(day.toString()),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          selectedDay = newValue;
+        });
+      },
+    ),
+  ),
+),
+
+
+            // GestureDetector(
+            //   onTap: () => _pickStartDate(ritualState),
+            //   child: Container(
+            //     padding: const EdgeInsets.symmetric(
+            //       horizontal: 12.0,
+            //       vertical: 15.0,
+            //     ),
+            //     decoration: BoxDecoration(
+            //       border: Border.all(color: AppColors.green, width: 1.0),
+            //       borderRadius: BorderRadius.circular(10.0),
+            //     ),
+            //     child: Row(
+            //       children: [
+            //         const Icon(
+            //           Icons.calendar_month_outlined,
+            //           color: AppColors.green,
+            //           size: 16.0,
+            //         ),
+            //         const SizedBox(width: 10),
+            //         commonText(
+            //           selectedStartDate == null
+            //               ? "Select Start Date"
+            //               : DateFormat(
+            //                 "dd - MM - yyyy",
+            //               ).format(selectedStartDate!),
+            //           size: 14.0,
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 20),
 
             // Duration Field

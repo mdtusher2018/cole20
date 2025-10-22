@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cole20/core/colors.dart';
 import 'package:cole20/core/commonWidgets.dart';
-import 'package:intl/intl.dart';
+
 
 class EditRitualScreen extends ConsumerStatefulWidget {
   final int currentDay;
@@ -28,7 +28,8 @@ class _EditRitualScreenState extends ConsumerState<EditRitualScreen> {
 
   String? selectedCategoryId;
   DateTime? selectedStartDate;
-
+  List<int> days = List.generate(45, (index) => index + 1);
+int? selectedDay;
   @override
   void initState() {
     super.initState();
@@ -37,6 +38,7 @@ class _EditRitualScreenState extends ConsumerState<EditRitualScreen> {
       text: widget.ritual.duration?.toString() ?? "",
     );
     selectedCategoryId = widget.ritual.categoryId;
+    selectedDay=widget.ritual.startDay;
     log(selectedCategoryId.toString());
     selectedStartDate = DateTime.now().add(
       Duration(days: widget.ritual.startDay - widget.currentDay),
@@ -50,24 +52,24 @@ class _EditRitualScreenState extends ConsumerState<EditRitualScreen> {
     super.dispose();
   }
 
-  Future<void> _pickStartDate(HomepageState state) async {
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedStartDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 45 - state.today)),
-    );
-    if (pickedDate != null) {
-      setState(() {
-        selectedStartDate = pickedDate;
-      });
-    }
-  }
+  // Future<void> _pickStartDate(HomepageState state) async {
+  //   final pickedDate = await showDatePicker(
+  //     context: context,
+  //     initialDate: selectedStartDate ?? DateTime.now(),
+  //     firstDate: DateTime.now(),
+  //     lastDate: DateTime.now().add(Duration(days: 45 - state.today)),
+  //   );
+  //   if (pickedDate != null) {
+  //     setState(() {
+  //       selectedStartDate = pickedDate;
+  //     });
+  //   }
+  // }
 
   void _updateRitual(HomepageState state) async {
     if (titleController.text.isEmpty ||
         selectedCategoryId == null ||
-        selectedStartDate == null) {
+        selectedDay == null) {
       showSnackBar(
         context: context,
         title: "Empty",
@@ -83,9 +85,8 @@ class _EditRitualScreenState extends ConsumerState<EditRitualScreen> {
             id: widget.ritual.id,
             title: titleController.text.trim(),
             categoryId: selectedCategoryId!,
-            startDay:
-                selectedStartDate!.difference(DateTime.now()).inDays +
-                widget.currentDay 
+            startDay:selectedDay!
+              
                 ,
             duration: int.tryParse(durationController.text),
             createdByUser: widget.ritual.createdByUser,
@@ -181,37 +182,66 @@ class _EditRitualScreenState extends ConsumerState<EditRitualScreen> {
             // Start Date Picker
             commonText("Start Date", size: 16.0),
             const SizedBox(height: 5),
-            GestureDetector(
-              onTap: () => _pickStartDate(ritualState),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 15.0,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.green, width: 1.0),
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_month_outlined,
-                      color: AppColors.green,
-                      size: 16.0,
-                    ),
-                    const SizedBox(width: 10),
-                    commonText(
-                      selectedStartDate == null
-                          ? "Select Start Date"
-                          : DateFormat(
-                            "dd - MM - yyyy",
-                          ).format(selectedStartDate!),
-                      size: 14.0,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+                    Container(
+  width: double.infinity,
+  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+  decoration: BoxDecoration(
+    border: Border.all(color: AppColors.green, width: 1.0),
+    borderRadius: BorderRadius.circular(10.0),
+  ),
+  child: DropdownButtonHideUnderline(
+    child: DropdownButton<int>(
+      hint: commonText(
+        "Select Day",
+        size: 14.0,
+        color: Colors.grey,
+      ),
+      value: selectedDay,
+      items: days.map<DropdownMenuItem<int>>((int day) {
+        return DropdownMenuItem<int>(
+          value: day,
+          child: Text(day.toString()),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          selectedDay = newValue;
+        });
+      },
+    ),
+  ),
+),
+            // GestureDetector(
+            //   onTap: () => _pickStartDate(ritualState),
+            //   child: Container(
+            //     padding: const EdgeInsets.symmetric(
+            //       horizontal: 12.0,
+            //       vertical: 15.0,
+            //     ),
+            //     decoration: BoxDecoration(
+            //       border: Border.all(color: AppColors.green, width: 1.0),
+            //       borderRadius: BorderRadius.circular(10.0),
+            //     ),
+            //     child: Row(
+            //       children: [
+            //         const Icon(
+            //           Icons.calendar_month_outlined,
+            //           color: AppColors.green,
+            //           size: 16.0,
+            //         ),
+            //         const SizedBox(width: 10),
+            //         commonText(
+            //           selectedStartDate == null
+            //               ? "Select Start Date"
+            //               : DateFormat(
+            //                 "dd - MM - yyyy",
+            //               ).format(selectedStartDate!),
+            //           size: 14.0,
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 20),
 
             // Duration
