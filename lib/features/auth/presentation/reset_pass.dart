@@ -64,7 +64,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                 const SizedBox(height: 20),
                 Image.asset(ImagePaths.logo, height: 80),
                 const SizedBox(height: 10),
-                commonText("45 cole20", size: 24.0, isBold: true),
+                commonText("45 Higher", size: 24.0, isBold: true),
                 const SizedBox(height: 10),
                 commonText("Now Reset Your Password.", size: 18.0),
                 const SizedBox(height: 5),

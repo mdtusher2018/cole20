@@ -56,7 +56,7 @@ class ShareStory extends StatelessWidget {
                 child: Column(
                   children: <Widget>[
                     Image.asset("assets/logo.png", scale: 1.5),
-                    commonText('45 cole20', size: 21, color: AppColors.gold),
+                    commonText('45 Higher', size: 21, color: AppColors.gold),
                     const SizedBox(height: 20),
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16),

@@ -78,7 +78,7 @@ class CompleteProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 10),
                 Image.asset(ImagePaths.logo, height: 80),
                 const SizedBox(height: 10),
-                commonText("45 cole20", size: 24.0, isBold: true),
+                commonText("45 Higher", size: 24.0, isBold: true),
                 const SizedBox(height: 10),
                 commonText(
                   "Now Complete Your\nProfile to Continue.",

@@ -76,7 +76,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             title: Row(
               children: [
                 Image.asset("assets/logo.png", width: 30, height: 30),
-                commonText(" 45 cole20", size: 18.0, color: AppColors.gold),
+                commonText(" 45 Higher", size: 18.0, color: AppColors.gold),
               ],
             ),
             subtitle: FutureBuilder<String>(

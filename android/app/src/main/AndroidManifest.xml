@@ -7,7 +7,7 @@
         android:maxSdkVersion="29"/>
 
     <application
-        android:label="cole20"
+        android:label="@string/appName"
         android:name="${applicationName}"
         android:requestLegacyExternalStorage="true"
         android:enableOnBackInvokedCallback="true"

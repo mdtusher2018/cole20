@@ -66,7 +66,7 @@ class OtpVerificationScreen extends ConsumerWidget {
               const SizedBox(height: 16),
               Image.asset(ImagePaths.logo, height: 80),
               const SizedBox(height: 10),
-              commonText("45 cole20", size: 24.0, isBold: true),
+              commonText("45 Higher", size: 24.0, isBold: true),
               const SizedBox(height: 10),
               commonText("Enter Verification Code.", size: 18.0),
               const SizedBox(height: 5),
