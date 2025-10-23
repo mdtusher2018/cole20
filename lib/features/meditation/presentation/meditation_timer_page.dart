@@ -94,19 +94,18 @@ class _MeditationTimerPageState extends ConsumerState<MeditationTimerPage> {
     startTimer();
   }
 
-String formatTime(Duration duration) {
-  String twoDigits(int n) => n.toString().padLeft(2, "0");
-  String hours = twoDigits(duration.inHours);
-  String minutes = twoDigits(duration.inMinutes.remainder(60));
-  String seconds = twoDigits(duration.inSeconds.remainder(60));
+  String formatTime(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String hours = twoDigits(duration.inHours);
+    String minutes = twoDigits(duration.inMinutes.remainder(60));
+    String seconds = twoDigits(duration.inSeconds.remainder(60));
 
-  if (duration.inHours > 0) {
-    return "$hours:$minutes:$seconds";
-  } else {
-    return "$minutes:$seconds";
+    if (duration.inHours > 0) {
+      return "$hours:$minutes:$seconds";
+    } else {
+      return "$minutes:$seconds";
+    }
   }
-}
-
 
   @override
   void dispose() {
@@ -118,7 +117,7 @@ String formatTime(Duration duration) {
     final notifier = ref.read(
       homePageNotifierProvider(widget.currentDay).notifier,
     );
-    final result= await notifier.completeRitual(widget.ritual.id);
+    final result = await notifier.completeRitual(widget.ritual.id);
 
     final state = ref.read(homePageNotifierProvider(widget.currentDay));
     if (result) {
@@ -129,9 +128,7 @@ String formatTime(Duration duration) {
       //   message: state.successMessage!,
       //   backgroundColor: Colors.green
       // );
-          await showLottieDialog(
-      context: context,
-    );
+      await showLottieDialog(context: context, ref: ref);
     } else {
       showSnackBar(
         context: context,
@@ -156,8 +153,8 @@ String formatTime(Duration duration) {
         message: state.successMessage!,
         backgroundColor: Colors.green,
       );
-    }else{
-            Navigator.popUntil(context, (route) => route.isFirst);
+    } else {
+      Navigator.popUntil(context, (route) => route.isFirst);
       showSnackBar(
         context: context,
         title: "Error",

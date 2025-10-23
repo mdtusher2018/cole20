@@ -1,7 +1,12 @@
+import 'package:cole20/core/providers.dart';
+import 'package:cole20/features/meditation/presentation/share_story.dart';
+import 'package:cole20/features/rituals/domain/ritual_category_model.dart';
+import 'package:cole20/features/rituals/presentation/calender.dart';
 import 'package:flutter/material.dart';
 import 'package:cole20/core/colors.dart';
 import 'dart:math' as math;
 import 'package:another_flushbar/flushbar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart';
 
 Widget commonText(
@@ -10,7 +15,7 @@ Widget commonText(
   Color color = Colors.black,
   bool isBold = false,
   softwarp,
-  int maxLine=1000,
+  int maxLine = 1000,
   TextAlign textAlign = TextAlign.left,
 }) {
   return Text(
@@ -439,14 +444,19 @@ class _RoundedCapPainter extends CustomPainter {
   }
 }
 
-
-Future<void> showLottieDialog({required BuildContext context}) async {
+Future<void> showLottieDialog({
+  required BuildContext context,
+  required WidgetRef ref,
+}) async {
+  final ritualState = ref.watch(
+    homePageNotifierProvider((CalendarScreen.selectedIndex ?? 0) + 1),
+  );
   await showDialog(
     context: context,
     barrierDismissible: false,
     barrierColor: Colors.transparent,
     builder: (context) {
-      return   Stack(
+      return Stack(
         children: [
           // Positioned at bottom center
           Positioned(
@@ -468,10 +478,19 @@ Future<void> showLottieDialog({required BuildContext context}) async {
                         if (Navigator.of(context).canPop()) {
                           Navigator.of(context).pop();
                         }
+
+                        showModalBottomSheet(
+                          context: context,
+                          builder:
+                              (context) => shareBottomSheet(
+                                context,
+                                ritualState.categories,
+                                (CalendarScreen.selectedIndex ?? 0) + 1,
+                              ),
+                        );
                       });
                     },
                   ),
-                             
                 ],
               ),
             ),
@@ -482,3 +501,70 @@ Future<void> showLottieDialog({required BuildContext context}) async {
   );
 }
 
+Widget shareBottomSheet(
+  BuildContext context,
+  List<RitualCategory> todayRituals,
+  int today,
+) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    width: MediaQuery.sizeOf(context).width,
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(16),
+        topRight: Radius.circular(16),
+      ),
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0, top: 8.0),
+          child: commonText('Share!', size: 16, textAlign: TextAlign.center),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: commonText(
+            'Share your journy progress!',
+            size: 16,
+            textAlign: TextAlign.center,
+          ),
+        ),
+        InkWell(
+          onTap: () {
+            slideNavigationPushAndRemoveUntil(
+              ShareStory(
+                todayRituals: (todayRituals),
+                today: math.min(today, 45),
+              ),
+              onlypush: true,
+              context,
+            );
+          },
+          child: Container(
+            height: 50,
+            width: MediaQuery.sizeOf(context).width * 0.8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: AppColors.green,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset("assets/images/instragram.png"),
+                const SizedBox(width: 16),
+                commonText(
+                  "Create Instagram Story",
+                  size: 16,
+                  color: AppColors.white,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 40),
+      ],
+    ),
+  );
+}

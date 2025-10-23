@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cole20/core/providers.dart';
 import 'package:cole20/features/rituals/domain/ritual_category_model.dart';
 import 'package:cole20/utils/helpers.dart';
@@ -101,7 +103,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       slideNavigationPushAndRemoveUntil(
                         ShareStory(
                           todayRituals: ritualState.categories,
-                          today: (CalendarScreen.selectedIndex ?? 0) + 1,
+                          today: min(((CalendarScreen.selectedIndex ?? 0) + 1),45),
                         ),
                         onlypush: true,
                         context,
@@ -433,7 +435,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           InkWell(
             onTap: () {
               slideNavigationPushAndRemoveUntil(
-                ShareStory(todayRituals: todayRituals, today: today),
+                ShareStory(todayRituals: todayRituals, today: min(today,45)),
                 onlypush: true,
                 context,
               );
